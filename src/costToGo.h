@@ -17,4 +17,6 @@ void costToGo5(LGP_Node* n, rai::String source, rai::String target);
 
 void costToGo6(LGP_Node* n, int numObjects, rai::String target);
 
+void pickAndPlaceCost(LGP_Node *node);
+
 #endif //MANIPULATIONPLANNING_COSTTOGO_H
