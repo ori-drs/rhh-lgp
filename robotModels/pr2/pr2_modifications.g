@@ -84,8 +84,8 @@ Edit l_wrist_flex_joint {     q=-.5  gains=[30 1] armL }
 Edit l_wrist_roll_joint {     q=.5  gains=[15 1] armL }
 
 ## GRIPPERS
-Edit r_gripper_l_finger_joint { q=.1 gripR }
-Edit l_gripper_l_finger_joint { q=.1 gripL }
+Edit r_gripper_l_finger_joint { q=.6 gripR }
+Edit l_gripper_l_finger_joint { q=.6 gripL }
 Edit r_gripper_joint {  gains=[1000 1] q=.01 gripR }
 Edit l_gripper_joint {  gains=[1000 1] q=.01 gripL }
 Edit r_gripper_l_finger_tip_frame { mass=.05 }
@@ -121,8 +121,8 @@ shape endeffLaser(laser_tilt_mount_link){ rel=<T t(-0.00300578 0.00167121 0.0122
 
 #shape endeffL(l_wrist_roll_link){ rel=<T t(.2 0 0)> type=5 color=[1 0 0] size=[.05 0 0 0]}
 #shape endeffR(r_wrist_roll_link){ rel=<T t(.2 0 0)> type=5 color=[1 0 0] size=[.05 0 0 0]}
-shape pr2R (r_wrist_roll_link){ rel=<T d(-90 0 1 0) d(-90 0 0 1) t(0 0 -.18)> type=ssBox size=[.03 .03 .05 .01] color=[1 1 0] logical:{ gripper } }
-shape pr2L (l_wrist_roll_link) { rel=<T d(-90 0 1 0) d(-90 0 0 1) t(0 0 -.18)> type=ssBox size=[.03 .03 .05 .01] color=[1 1 0] logical:{ gripper } }
+shape pr2R (r_wrist_roll_link){ rel=<T d(-90 0 1 0) d(-90 0 0 1) t(0 -0.05 -.1)> type=ssBox size=[.03 .03 .05 .01] color=[1 1 0 0] logical:{ gripper }}
+shape pr2L (l_wrist_roll_link) { rel=<T d(-90 0 1 0) d(-90 0 0 1) t(0 -0.05 -.1)> type=ssBox size=[.03 .03 .05 .01] color=[1 1 0 0] logical:{ gripper }}
 
 #shape endeffForceL(l_wrist_roll_link){ rel=<T t(.20 0 0) d(-90 0 1 0) d(70.015 0 0 1)> type=5 color=[0 1 1] size=[.05 0 0 0]}
 #shape endeffForceR(r_wrist_roll_link){ rel=<T t(.20 0 0) d(-90 0 1 0) d(70.015 0 0 1)> type=5 color=[0 1 1] size=[.05 0 0 0]}
