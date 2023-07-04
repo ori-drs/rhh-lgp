@@ -129,3 +129,37 @@ shape pr2L (l_wrist_roll_link) { rel=<T d(-90 0 1 0) d(-90 0 0 1) t(0 -0.05 -.1)
 
 #shape wrenchDispL(l_wrist_roll_link){ rel=<T t(.25 0 0)> type=5 color=[1 1 0] size=[.1 0 0 0]}
 #shape wrenchDispR(r_wrist_roll_link){ rel=<T t(.25 0 0)> type=5 color=[1 1 0] size=[.1 0 0 0]}
+
+
+# Colors to match pybullet
+Edit head_pan_link_1 {color=[0 0 0.75 1]}
+Edit head_plate_frame_1 {color=[0 0 0.75 1]}
+Edit sensor_mount_link_1 {color=[0 0 0.75 1]}
+Edit double_stereo_link_1 {color=[0 0 0.75 1]}
+Edit l_shoulder_pan_link_1 {color=[0 0 0.75 1]}
+Edit r_shoulder_pan_link_1 {color=[0 0 0.75 1]}
+Edit head_tilt_link_1 {color=[0 0.75 0 1]}
+Edit r_upper_arm_link_1 {color=[0 0.75 0 1]}
+Edit l_upper_arm_link_1 {color=[0 0.75 0 1]}
+Edit r_gripper_l_finger_tip_link_1 {color=[0 0.75 0 1]}
+Edit r_gripper_r_finger_tip_link_1 {color=[0 0.75 0 1]}
+Edit l_gripper_l_finger_tip_link_1 {color=[0 0.75 0 1]}
+Edit l_gripper_r_finger_tip_link_1 {color=[0 0.75 0 1]}
+Edit laser_tilt_mount_link_1 {color=[0.75 0 0 1]}
+Edit r_gripper_palm_link_1 {color=[0.75 0 0 1]}
+Edit l_gripper_palm_link_1 {color=[0.75 0 0 1]}
+Edit torso_lift_link_1 {color=[0.9 0.9 0.9 1]}
+Edit r_shoulder_lift_link_1 {color=[0.7 0.7 0.7 1]}
+Edit l_shoulder_lift_link_1 {color=[0.7 0.7 0.7 1]}
+Edit r_elbow_flex_link_1 {color=[0.7 0.7 0.7 1]}
+Edit l_elbow_flex_link_1 {color=[0.7 0.7 0.7 1]}
+Edit r_forearm_link_1 {color=[0.7 0.7 0.7 1]}
+Edit l_forearm_link_1 {color=[0.7 0.7 0.7 1]}
+Edit r_wrist_flex_link_1 {color=[0.7 0.7 0.7 1]}
+Edit l_wrist_flex_link_1 {color=[0.7 0.7 0.7 1]}
+Edit r_gripper_l_finger_link_1 {color=[0.7 0.7 0.7 1]}
+Edit r_gripper_r_finger_link_1 {color=[0.7 0.7 0.7 1]}
+Edit l_gripper_l_finger_link_1 {color=[0.7 0.7 0.7 1]}
+Edit l_gripper_r_finger_link_1 {color=[0.7 0.7 0.7 1]}
+Edit base_link_1 {color=[0.9 0.9 0.9 1]}
+Edit base_footprint_1 {color=[0.9 0.9 0.9 1]}

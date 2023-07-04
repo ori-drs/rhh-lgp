@@ -50,7 +50,7 @@ shape head_tilt_link_1 (head_tilt_link){ type=mesh rel=<T 0.000961809 -0.0011411
 shape head_plate_frame_1 (head_tilt_link){ type=box rel=<T 5.15143e-18 -0.0232 0.0645 -0.707107 0 0 0.707107 >  size=[ 0.01 0.01 0.01 0 ]  }
 shape sensor_mount_link_1 (head_tilt_link){ type=box rel=<T 5.15143e-18 -0.0232 0.0645 -0.707107 0 0 0.707107 >  size=[ 0.01 0.01 0.01 0 ]  }
 shape double_stereo_link_1 (head_tilt_link){ type=box rel=<T 2.93099e-18 -0.0132 0.0895 -0.707107 0 0 0.707107 >  size=[ 0.02 0.12 0.05 0 ]  }
-shape head_mount_link_1 (head_tilt_link){ type=mesh rel=<T 0.00394516 0.168922 0.258886 -0.707107 0 0 0.707107 >  mesh='sensors/kinect_prosilica_v0/115x100_swept_back--coarse.stl'  color=[ 0.5 0.5 0.5 1 ]  meshscale=0.001  rel_includes_mesh_center,  }
+#shape head_mount_link_1 (head_tilt_link){ type=mesh rel=<T 0.00394516 0.168922 0.258886 -0.707107 0 0 0.707107 >  mesh='sensors/kinect_prosilica_v0/115x100_swept_back--coarse.stl'  color=[ 0.5 0.5 0.5 1 ]  meshscale=0.001  rel_includes_mesh_center,  }
 shape head_mount_kinect_ir_link_1 (head_tilt_link){ type=sphere rel=<T 0.0125 0.147067 0.291953 -0.707107 0 0 0.707107 >  size=[ 0 0 0 0.0005 ]  }
 shape head_mount_kinect_rgb_link_1 (head_tilt_link){ type=sphere rel=<T -0.0175 0.147067 0.291953 -0.707107 0 0 0.707107 >  size=[ 0 0 0 0.0005 ]  }
 shape head_mount_prosilica_link_1 (head_tilt_link){ type=sphere rel=<T 0.0125 0.161257 0.244421 -0.707107 0 0 0.707107 >  size=[ 0 0 0 0.0005 ]  }
