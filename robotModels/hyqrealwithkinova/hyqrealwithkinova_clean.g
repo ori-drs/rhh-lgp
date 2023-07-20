@@ -1,5 +1,5 @@
 base world{ color:[0.8, 0.2, 0.2, 0.5]}
-base_footprint 	{Q:[0, 0, 0.611768, 1, 0, 0, 0] }
+base_footprint 	{Q:[0, 0, 0.58, 1, 0, 0, 0] }
 #base_footprint 	{}
 base_pitch {}
 jointBase_pitch (world base_pitch) { joint:hingeY, limits: [-0.15, 0.15] }
