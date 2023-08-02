@@ -147,3 +147,58 @@ void createTableScene(rai::Configuration& C, uint numObj) {
 	}
 	C.proxies.clear();
 }
+
+
+void generateProblem(rai::Configuration &C, uint numObjScene)
+{
+  for (;;)
+  {
+    C.clear();
+    C.addFile("robotModels/hyqrealwitharm/hyqrealwithkinova_main.g");
+    C.optimizeTree();
+    C["worldTranslationRotation"]->joint->H = 1e-0;
+    C["hyqrealwithkinovaG"]->ats->newNode<Graph>({"logical"}, {}, {{"gripper", true}});
+    C["baseG"]->ats->newNode<Graph>({"logical"}, {}, {{"base", true}});
+    C.selectJointsByAtt({"base", "arm"});
+
+    C.addFile("robotModels/tables2.g");
+
+    C.pruneInactiveJoints();
+    // for (uint i = 0; i < numObjScene; i++)
+    // {
+    //rai::Frame *f1 = C.addFrame(STRING("obj0"), "", "type:ssBox size:[.1 .1 .2 .02] color:[0. 1. 0.], contact, logical={ object }");
+    //f1->setPosition({2.0, 0.0, 0.1});
+    //  Create a unit quaternion representing no rotation
+    rai::Quaternion noRotationQuaternion(1.0, 0.0, 0.0, 0.0);
+    // Use this quaternion with setRelativeQuaternion
+    // f->setRelativeQuaternion(noRotationQuaternion.getArr4d());
+    //f1->setQuaternion(noRotationQuaternion.getArr4d());
+
+    rai::Frame *f1 = C.addFrame(STRING("obj0"), "", "type:ssBox size:[.1 .1 .28 .02] color:[0. 1. 0. 1.], contact, logical={ object }");
+    //f1->setRelativePosition({0.0, 0.0, 0.0});
+    f1->setPosition({2.0, 0.0, 0.14});
+    f1->setQuaternion(noRotationQuaternion.getArr4d());
+
+    //rai::Frame *f2 = C.addFrame(STRING("obj1"), "", "type:ssBox size:[.1 .1 .2 .02] color:[0. 1. 0. 0.], contact, logical={ object }");
+    //f2->setPosition({2.0, 0.4, 0.1});
+    //f2->setQuaternion(noRotationQuaternion.getArr4d());
+
+    // }
+    C.stepSwift();
+    arr y, J;
+    C.kinematicsPenetration(y, J);
+    // C.reportProxies();
+    if (y.scalar() == 0.)
+      break;
+  }
+
+  C.proxies.clear();
+
+  // rai::Frame *f = C.addFrame("tray", "table2", "type:ssBox size:[.15 .15 .04 .02] color:[0. 0. 1.], logical={ table }");
+  // f->setRelativePosition({0., 0., .25});
+  // C.addFrame("", "tray", "type:ssBox size:[.27 .27 .04 .02] color:[0. 0. 1.]");
+
+  // rai::Frame *f = C.addFrame("tray", "table2", "type:ssBox size:[.15 .15 .04 .02] color:[0. 0. 1.], logical={ table }");
+  // f->setRelativePosition({0., 0., .17});
+  // C.addFrame("", "tray", "type:ssBox size:[.27 .27 .04 .02] color:[0. 0. 1.]");
+}

@@ -190,3 +190,53 @@ void LGP_Tree::seqBoundCostToGo(LGP_Node *node) {
 	}
 }
 
+
+void hsr_original_heuristic(LGP_Node *n)
+{
+  if (n->decision && n->parent->decision)
+  {
+    rai::String currentDecision = std::dynamic_pointer_cast<const FOL_World::Decision>(n->decision)->rule->key;
+    rai::String parentDecision = std::dynamic_pointer_cast<const FOL_World::Decision>(n->parent->decision)->rule->key;
+    if (parentDecision == "move")
+    {
+      if (currentDecision == "pick")
+        n->cost(BD_symbolic) += 0;
+      else if (currentDecision == "lift")
+        n->cost(BD_symbolic) += 100;
+      else if (currentDecision == "place")
+        n->cost(BD_symbolic) += 5;      
+    }
+    else if (parentDecision == "pick")
+    {
+      if (currentDecision == "place")
+        n->cost(BD_symbolic) += 100;
+      else if (currentDecision == "lift")
+        n->cost(BD_symbolic) += 0;
+      else if (currentDecision == "pick")
+        n->cost(BD_symbolic) += 100;
+      else if (currentDecision == "move")
+        n->cost(BD_symbolic) += 100;
+    }
+    else if (parentDecision == "place")
+    {
+      if (currentDecision == "place")
+        n->cost(BD_symbolic) += 100;
+        else if (currentDecision == "lift")
+        n->cost(BD_symbolic) += 100;
+      else if (currentDecision == "pick")
+        n->cost(BD_symbolic) += 100;
+      else if (currentDecision == "move")
+        n->cost(BD_symbolic) += 100;    
+    }
+     else if (parentDecision == "lift")
+    {
+      if (currentDecision == "place")
+        n->cost(BD_symbolic) += 100;
+      else if (currentDecision == "pick")
+        n->cost(BD_symbolic) += 100;
+      else if (currentDecision == "move")
+        n->cost(BD_symbolic) += 5;
+    }
+  }
+}
+

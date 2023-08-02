@@ -11,7 +11,8 @@ enum ManipulationTask {
 		MT_complex,
 		MT_mobileManipulator,
 		MT_obstacle,
-		MT_panda
+		MT_panda,
+		MT_hyq,
 };
 
 enum HeuristicFct {
@@ -31,6 +32,8 @@ void createShelfScene(rai::Configuration& C, uint numObj=4);
 void createObstacleParcour(rai::Configuration& C, uint numObj);
 
 void createTableScene(rai::Configuration& C, uint numObj);
+
+void generateProblem(rai::Configuration &C, uint numObjScene);
 
 /* converts a string to an int to use strings in switches */
 constexpr unsigned int str2int(const char* str, int h = 0) { return !str[h] ? 5381 : (str2int(str, h+1) * 33) ^ str[h];}

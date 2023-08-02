@@ -252,12 +252,12 @@ void LGP_Node::optBound3(BoundType bound, bool collisions, intA window, int verb
 	double bound_cost = result.get<double>("sos");
 	double bound_constraints = result.get<double>("eq");
 	bound_constraints += result.get<double>("ineq");
+	std::cout << "bound constraints " << bound_constraints << "\n";
+	bool feas = (bound_constraints<5.0);
 
-	bool feas = (bound_constraints<2.5);
-
-	if(komo->verbose>0) {
+	// if(komo->verbose>0) {
 		cout <<"  RESULTS: cost: " <<bound_cost <<" constraints: " <<bound_constraints <<" feasible: " <<feas <<endl;
-	}
+	// }
 
 	//-- post process komo problem for level==1
 	if(bound==BD_pose) {
@@ -281,18 +281,24 @@ void LGP_Node::optBound3(BoundType bound, bool collisions, intA window, int verb
 		computeTime(bound) = komo->timeTotal;
 	}
 
-	if(!feasible(bound))
+	if(!feasible(bound)){
 		labelInfeasible();
+		std::cout << "label infeasible " << "\n";}
 }
 
 //===========================================================================
 // overloading optBestOnLevel with horizon
 void LGP_Tree::optBestOnLevel(BoundType bound, LGP_NodeL& drawFringe, BoundType drawFrom, LGP_NodeL* addIfTerminal, LGP_NodeL* addChildren, const intA window) { //optimize a seq
-	if(!drawFringe.N) return;
+	if(!drawFringe.N) {
+		std::cout << "NOT READY YET!" << "\n";
+		return;}
 	LGP_Node* n = popBest(drawFringe, drawFrom);
+	std::cout << "node " << *n << "\n";
+	std::cout << "entering inside this optBestOnLevel" << "\n";
 	if(n && !n->count(bound)) {
 		try {
 			// optBound3 is adapted to RHC
+			std::cout << "calling bound 3" << "\n";
 			n->optBound3(bound, collisions, window, verbose-2);
 		} catch(const char* err) {
 			LOG(-1) <<"opt(level=" <<bound <<") has failed for the following node:";
@@ -332,7 +338,8 @@ void LGP_Tree::step(int horizon, int windowN) {
 
 	// optimize nodes
 	optBestOnLevel(BD_seq, fringe_seq, BD_symbolic, &fringe_path, nullptr, {horizon*windowN, horizon*(windowN+1)});
-	if(verbose>2 && fringe_path.N) cout <<"EVALUATING PATH " <<fringe_path.last()->getTreePathString(horizon*windowN, horizon*(windowN+1));
+
+	if(fringe_path.N) cout <<"EVALUATING PATH " <<fringe_path.last()->getTreePathString(horizon*windowN, horizon*(windowN+1));
 	optBestOnLevel(BD_seqPath, fringe_path, BD_seq, &fringe_solved, nullptr, {horizon*windowN, horizon*(windowN+1)});
 
 	if(fringe_solved.N>numSol) {
@@ -369,19 +376,24 @@ void LGP_Tree::step(int horizon, int windowN) {
 //===========================================================================
 // new version of run that performs init differently and calls step with optimization window
 void LGP_Tree::run2(int windowN, int horizon, uint steps) {
+	std::cout << "entering into run2" << "\n";
 	//init(); --- replaced by the lines below
 	if (heuristicCosts) heuristicCosts(root);
 	fringe_expand.append(focusNode);
 	//fringe_seq.append(focusNode); 			// this can be skipped since root will always be optimized with seqBound in previous problem
 
-	uint stopSol = rai::getParameter<double>("LGP/stopSol", 12);
-	//double stopTime = rai::getParameter<double>("LGP/stopTime", 400.);
+	uint stopSol = rai::getParameter<double>("LGP/stopSol", 1);
+	double stopTime = rai::getParameter<double>("LGP/stopTime", 100.);
 
 	for(uint k=0; k<steps; k++) {
 		step(horizon, windowN); 						//< call step with horizon
+		// std::cout << "calling steps" << "\n";
+		// std::cout << "stopSol" << stopSol << "\n";
+		// std::cout << "fringe_solved.N" << fringe_solved.N << "\n";
+    	// displayTreeUsingDot();
 
 		if(fringe_solved.N>=stopSol) break;
-		//if(COUNT_time>stopTime) break;		//< count time is counting the entire opt time so we dont want this here
+		if(COUNT_time>stopTime) break;		//< count time is counting the entire opt time so we dont want this here
 	}
 
 	if(verbose>0) report(true);
@@ -409,6 +421,7 @@ rai::String LGP_Node::getTreePathString(int from, uint to, char sep) const {
 //===========================================================================
 // this sets up a new LGP tree, based on a previous one
 void RHHLGP_solver::setupLGP(LGP_Tree &tree, const char *priorDecisions) const {
+
 	tree.fol.addTerminalRule(goals);
 	tree.heuristicCosts = interfaceFct;
 	tree.verbose = verbose;
@@ -447,24 +460,35 @@ void RHHLGP_solver::reset() {
 // 2. return the endconfig of the last feasible step
 // 3. run next lgp instance with new config and same goals
 void RHHLGP_solver::optimize(ptr<OpenGL> gl) {
+	std::cout << "entering here optimize" << "\n";
 	rai::String solution;
 	bool solved = false;
 	LGP_Node *optimizedNode;
 	rai::Configuration nextConfig = C; // save config statically
 	reset();
+	std::cout << "before solving" << "\n";
 
 	// loop over horizons until we reached our goal
 	int i = 1;
 	while(!solved) {
+		std::cout << "first loop" << "\n";
+
 		if (verbose>1) cout << "STARTING ITERATION: " << i << endl;
 		LGP_Tree lgp(nextConfig, folFile);									// setup and run
 		setupLGP(lgp, solution.p);
+		std::cout << "before run2" << "\n";
+		std::cout << "horizon" << horizon << "\n";
+		std::cout << "i" << i << "\n";
+
 		lgp.run2(i-1, horizon, 3000000);
+		std::cout << "repeating" << "\n";
+		std::cout << "horizon" << "\n";
 
 		// extract solutions
 		CHECK(lgp.fringe_solved.N, "FRINGE SOLVED HAS TO CONTAIN A VALUE");
 		optimizedNode = lgp.fringe_solved.last();
 		solution << optimizedNode->getTreePathString(horizon*(i-1), horizon*i) << " ";
+		cout <<endl<<" solution " << solution << "from " << horizon*(i-1) << "to " << horizon*i  << endl;
 		solutionLen = optimizedNode->step;
 		BoundType optimizedBound = getOptimizedBound(optimizedNode);
 		komo.reset();

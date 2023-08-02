@@ -62,8 +62,9 @@ DecisionRule pick {
   X, Y, Z
   { (gripper X) (object Y) (base Z) (busy X)! (held Y)! (INFEASIBLE pick X Y)! (at Z Y) }
   { (above Y ANY)! (on ANY Y)! (stableOn ANY Y)! 
-    (picked X Y) (held Y) (busy X) # these are only on the logical side, to enable correct preconditions
-    (graspTop X Y) (stable X Y) # these are predicates that enter the NLP
+    (picked X Y) (held Y) (busy X) 
+    (graspTop X Y) (stable X Y) 
+    (INFEASIBLE move X Y)
     }
 }
 
@@ -86,17 +87,20 @@ DecisionRule place {
 DecisionRule lift {
   X, Y
   { (gripper X) (object Y) (picked X Y) (INFEASIBLE lift X Y)! (busy X)} 
-  { (picked X Y)! (lifted X Y) (held Y) (busy X)! }
+  { (picked X Y)! (lifted X Y) (held Y) (busy X)! 
+    (INFEASIBLE move X Y) 
+    (INFEASIBLE pick X Y)
+  }
 } 
 
 #####################################################################
 
-DecisionRule end {
-  X, Y
-  { (gripper X) (object Y) (placed Y) (INFEASIBLE end X Y)!}
-  { (moveGripper X Y) (movedGripper X Y)
-   (INFEASIBLE pick ANY Y)! block(INFEASIBLE pick ANY Y)
-    (INFEASIBLE lift ANY Y)! block(INFEASIBLE lift ANY Y)
-  (INFEASIBLE place ANY Y)! block(INFEASIBLE place ANY Y)
-  (INFEASIBLE move ANY Y)! block(INFEASIBLE move ANY Y)  }
-}
+#DecisionRule end {
+#  X, Y
+#  { (gripper X) (object Y) (placed Y) (INFEASIBLE end X Y)!}
+#  { (moveGripper X Y) (movedGripper X Y)
+#   (INFEASIBLE pick ANY Y)! block(INFEASIBLE pick ANY Y)
+#    (INFEASIBLE lift ANY Y)! block(INFEASIBLE lift ANY Y)
+#  (INFEASIBLE place ANY Y)! block(INFEASIBLE place ANY Y)
+#  (INFEASIBLE move ANY Y)! block(INFEASIBLE move ANY Y)  }
+#}
