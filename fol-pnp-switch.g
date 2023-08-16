@@ -16,17 +16,26 @@ gripper
 object
 table
 partOf
+knob
+drawer
+cilinder
 
 on
 busy     # involved in an ongoing (durative) activity
 free     # gripper hand is free
 held     # object is held by an gripper
-picked   # gripper X holds/has picked object Y
-placed   # gripper X holds/has picked object Y
+picked   # gripper G holds/has picked object C
+placed   # gripper G holds/has picked object C
+opened
+closed
+placedindrawer
 
 ## KOMO symbols
 touch
 above
+open
+close
+lift
 
 touch
 stable
@@ -45,26 +54,79 @@ REWARD {
 
 #####################################################################
 
-DecisionRule pick {
-  X, Y
-  { (gripper X) (object Y) (busy X)! (held Y)! (INFEASIBLE pick X Y)! }
-  { (above Y ANY)! (on ANY Y)! (stableOn ANY Y)! 
-    (picked X Y) (held Y) (busy X) # these are only on the logical side, to enable correct preconditions
-    (touch X Y) (stable X Y) # these are predicates that enter the NLP
+DecisionRule takeknob {
+  G, K
+  { (gripper G) (knob K) (busy G)! (held K)! (INFEASIBLE pick G K)! }
+  { (above K ANY)! (on ANY K)! (stableOn ANY K)! 
+    (picked G K) (held K) (busy G) # these are only on the logical side, to enable correct preconditions
+    (touch G K) (stable G K) # these are predicates that enter the NLP
     }
 }
 
 #####################################################################
 
-DecisionRule place {
-  X, Y, Z,
-  { (picked X Y) (table Z) (held Y) }
-  { (picked X Y)! (busy X)! (busy Y)! (held Y)! # logic only
-    (stable ANY Y)! (touch X Y)! # NLP predicates
-    (on Z Y) (above Y Z) (stableOn Z Y) tmp(touch X Y) tmp(touch Y Z)
-    (INFEASIBLE pick ANY Y)! block(INFEASIBLE pick ANY Y)
+DecisionRule opendrawer {
+  G, K, D
+  { (gripper G) (knob K) (drawer D) (picked G K)}
+  { (picked G K)!
+    (open G K) (stable G K)! (touch G K)! (busy G)! (held K)! (INFEASIBLE pick G K)!
+    (opened D)
     }
 }
 
 #####################################################################
 
+DecisionRule closedrawer {
+  G, K, D
+  { (gripper G) (knob K) (drawer D) (picked G K) (held K) (busy G)}
+  { (picked G K)!
+    (close G K) (stable G K)! (touch G K)!
+    (closed D)
+    }
+}
+
+#####################################################################
+
+DecisionRule takeknobtoclose {
+  G, K, D
+  { (gripper G) (knob K) (drawer D) (busy G)! (held K)! (picked G K)! (INFEASIBLE pick G K)! (opened D)}
+  { (above K ANY)! (on ANY K)! (stableOn ANY K)! 
+    (picked G K) (held K) (busy G) (INFEASIBLE close G K)! # these are only on the logical side, to enable correct preconditions
+    (touch G K) (stable G K) # these are predicates that enter the NLP
+    (opened D)
+    }
+}
+
+#####################################################################
+DecisionRule placeindrawer {
+  G, C, D
+  { (gripper G) (cilinder C) (drawer D) (picked G C) (opened D)}
+  { (picked G C)! (busy G)! (busy C)! (held C)! # logic only
+    (stable ANY C)! (touch G C)! # NLP predicates
+    (on D C) (above C D) (stableOn D C) tmp(touch G C) tmp(touch C D)
+    (INFEASIBLE pick ANY C)! block(INFEASIBLE pick ANY C)
+    (placedindrawer C D)
+    }
+}
+
+#####################################################################
+
+DecisionRule pickcilinder {
+  G, C
+  { (gripper G) (cilinder C) (busy G)! (held C)! (INFEASIBLE pick G C)! }
+  { (above C ANY)! (on ANY C)! (stableOn ANY C)! 
+    (picked G C) (held C) (busy G) # these are only on the logical side, to enable correct preconditions
+    (touch G C) (stable G C) # these are predicates that enter the NLP
+    }
+}
+
+#####################################################################
+
+#DecisionRule picktoplaceindrawer {
+#  G, C, D
+#  { (gripper G) (cilinder C) (drawer D) (opened D) (busy G)! (held C)! (INFEASIBLE pick G C)! }
+#  { (above C ANY)! (on ANY C)! (stableOn ANY C)! 
+#    (picked G C) (held C) (busy G) # these are only on the logical side, to enable correct preconditions
+#    (touch G C) (stable G C) (opened D) # these are predicates that enter the NLP
+#    }
+#}

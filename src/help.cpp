@@ -214,3 +214,59 @@ void createTableSceneClassic(rai::Configuration &C, uint numObj)
 	yAxis->setRelativePosition({0.0, 0.15, 0.0});
 	zAxis->setRelativePosition({0.0, 0.0, 0.15});
 }
+
+void createDrawerScene(rai::Configuration &C)
+{
+	// for (;;)
+	// {
+	// 	C.clear();
+	
+	
+	// 	C.addFile("robotModels/drawer.g");
+	// 	for (uint i = 0; i < numObj; i++)
+	// 	{
+	// 		rai::Frame *f = C.addFrame(STRING("obj" << i), "table1", "type:ssBox size:[.1 .1 .2 .02] color:[1. 0. 0.], contact, logical={ object }, joint:rigid");
+	// 		f->setRelativePosition({rnd.uni(-.3, .3), rnd.uni(-1., 1.), .15});
+	// 		f->setRelativeQuaternion(rai::Quaternion(0).addZ(rnd.uni(-RAI_PI, RAI_PI)).getArr4d());
+	// 	}
+	// 	C.stepSwift();
+	// 	arr y, J;
+	// 	C.kinematicsPenetration(y, J);
+	// 	if (y.scalar() == 0.)
+	// 		break;
+	// }
+
+	// rai::Frame *f1 = C.addFrame("obj5", "obj0", "type:ssBox size:[.05 .05 .05 .02] color:[0. 1. 0.], contact, logical={ object }, joint:rigid");
+	// f1->setRelativePosition({-0.07, -0.07, 0.0});
+	// f1->setRelativeQuaternion(rai::Quaternion(0).addZ(rnd.uni(-RAI_PI, RAI_PI)).getArr4d());
+	// C.attach("obj0", "obj5");
+	C.clear();
+	// C.addFile("robotModels/drawer.g");
+	rai::Frame *f2 = C.addFrame("knob", "", "type:ssBox size:[.05 .05 .05 .02] color:[0. 0. 1.], contact, logical={object, knob }");
+	f2->setPosition({0.0, -2.0, 0.4});
+	f2->setQuaternion(rai::Quaternion(0).addZ(0).getArr4d());
+
+	rai::Quaternion noRotationQuaternion(1.0, 0.0, 0.0, 0.0);
+	rai::Frame *f3 = C.addFrame("drawer", "knob", "type:ssBox size:[.5 .5 .1 .02] color:[0. 1. 0. 1.], contact, logical={ table, drawer }, joint:rigid");
+	f3->setRelativePosition({0.0, -0.28, 0.0});
+    f3->setQuaternion(noRotationQuaternion.getArr4d());
+
+	rai::Frame *f4 = C.addFrame(STRING("cilinder"), "", "type:ssBox size:[.1 .1 .2 .02] color:[1. 0. 0.], contact, logical={ object, cilinder }");
+	f4->setPosition({1.0, -2.0, 0.4});
+	f4->setQuaternion(noRotationQuaternion.getArr4d());
+
+
+	C.proxies.clear();
+
+	// rai::Frame *f = C.addFrame("tray", "table2", "type:ssBox size:[.15 .15 .04 .02] color:[0. 1. 0.], logical={ table }");
+	// f->setRelativePosition({0., 0., .07});
+
+	// C.addFrame("", "tray", "type:ssBox size:[.27 .27 .04 .02] color:[0. 1. 0.]");
+
+	// rai::Frame *xAxis = C.addFrame("xAxis", "tray", "type:ssBox size:[.3 .01 .01 .01] color:[1. 0. 0.]");
+	// rai::Frame *yAxis = C.addFrame("yAxis", "tray", "type:ssBox size:[.01 .3 .01 .01] color:[0. 1. 0.]");
+	// rai::Frame *zAxis = C.addFrame("zAxis", "tray", "type:ssBox size:[.01 .01 .3 .01] color:[0. 0. 1.]");
+	// xAxis->setRelativePosition({0.15, 0.0, 0.0});
+	// yAxis->setRelativePosition({0.0, 0.15, 0.0});
+	// zAxis->setRelativePosition({0.0, 0.0, 0.15});
+}
