@@ -69,7 +69,7 @@ DecisionRule opendrawer {
   G, K, D
   { (gripper G) (knob K) (drawer D) (picked G K)}
   { (picked G K)!
-    (open G K) (stable G K)! (touch G K)! (busy G)! (held K)! (INFEASIBLE pick G K)!
+    (open G K) (stable G K)! (touch G K)! (busy G)! (held K)! (INFEASIBLE pick G K)! (INFEASIBLE close G K)!
     (opened D)
     }
 }
@@ -80,7 +80,7 @@ DecisionRule closedrawer {
   G, K, D
   { (gripper G) (knob K) (drawer D) (picked G K) (held K) (busy G)}
   { (picked G K)!
-    (close G K) (stable G K)! (touch G K)!
+    (close G K) (stable G K)! (touch G K)! (held K)! (INFEASIBLE pick G K)! (INFEASIBLE open G K)!
     (closed D)
     }
 }

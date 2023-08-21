@@ -24,64 +24,72 @@ void solveHsrTask(uint numObj)
 	yAxis->setRelativePosition({0.0, 0.15, 0.0});
 	zAxis->setRelativePosition({0.0, 0.0, 0.15});
 
-	// KOMO komo;
+	KOMO komo;
 
-	// komo.setModel(C, false);
-	// // if(!keyframesOnly){
-	// 	komo.setTiming(5.0, 30, 5., 1);
-	// 	komo.add_qControlObjective({}, 1, 1e0);
-	// // }else{
-	// 	// komo.setTiming(5., 1, 2., 1);
-	// 	// komo.add_qControlObjective({}, 1, 1e-1);
-	// // }
-	// komo.addSquaredQuaternionNorms();
+	komo.setModel(C, false);
+	komo.setTiming(11.0, 10, 7., 2);
+	komo.add_qControlObjective({}, 1, 1e0);
+	komo.addSquaredQuaternionNorms();
+	komo.add_jointLimits(true);
 
-	// Skeleton S = {
-	// 	//take a step
-	// 	{ 1., 1.1, SY_touch, {"hsrG", "knob"} },
-	// 	{ 1.1, 1.3, SY_stable, {"hsrG", "knob"} },
+	Skeleton S = {
+		//open drawer
+		{ 1., 1., SY_touch, {"hsrG", "knob"} },
+		{ 1., 2., SY_stable, {"hsrG", "knob"} },
+		{ 2., 8., SY_open, {"hsrG", "knob"} },
 
-	// 	//grasp box
-	// 	{ 1.3, 3., SY_open, {"hsrG", "knob"} },
-	// 	{ 3.1, 3.2, SY_touch, {"hsrG", "knob"} },
-	// 	{ 3.2, 3.4, SY_stable, {"hsrG", "knob"} },
-	// 	{ 3.4, 5.0, SY_close, {"hsrG", "knob"} },
-	// 	// { 2., 2., SY_open, {"hsrG", "knob"} },
-	// 	// { 2., 3., SY_stable, {"handA", "box"} },
-	// 	// { 1.9, 2.1, SY_downUp, {"handA"} },
+		// //grasp cilinder
+		
+		// { 3., 3., SY_touch, {"hsrG", "cilinder"} },
+		// { 3., 4., SY_stable, {"hsrG", "cilinder"} },
 
-	// 	// //handover
-	// 	// { 3., 3., SY_touch, {"gripper", "box"} },
-	// 	// { 3., 4., SY_stable, {"gripper", "box"} },
+		// //put the cilinder on the drawer
+		// { 4., 6., SY_above, {"cilinder", "drawer"} },
+		// { 4., -1., SY_stableOn, {"drawer", "cilinder"} },
+		// { 4., 4., SY_touch, {"hsrG", "cilinder"} },
+		// { 4., 4., SY_touch, {"cilinder", "drawer"} },
 
-	// 	// //place box
-	// 	// { 3.9, 4.1, SY_downUp, {"handA"} },
-	// 	// { 4., 4., SY_poseEq, {"box", "target"} },
-	// 	// { 4., -1., SY_stable, {"table", "box"} },
-	// };
-	// komo.setSkeleton(S);
+		// //close the drawer
+		// { 5., 5., SY_touch, {"hsrG", "knob"} },
+		// { 5., 6., SY_stable, {"hsrG", "knob"} },
+		// { 6., 8., SY_close, {"hsrG", "knob"} },
 
-	// komo.optimize();
+		{ 5., 5., SY_touch, {"hsrG", "cilinder"} },
+		{ 5., 7., SY_stable, {"hsrG", "cilinder"} },
 
-	// komo.getReport(true);
-	// komo.view(true, "optimized motion");
-	// while(komo.view_play(true));
+		//put the cilinder on the drawer
+		{ 7., 9., SY_above, {"cilinder", "drawer"} },
+		{ 7., -1., SY_stableOn, {"drawer", "cilinder"} },
+		{ 7., 7., SY_touch, {"hsrG", "cilinder"} },
+		{ 7., 7., SY_touch, {"cilinder", "drawer"} },
+
+		//close the drawer
+		{ 8., 8., SY_touch, {"hsrG", "knob"} },
+		{ 8., 9., SY_stable, {"hsrG", "knob"} },
+		{ 9., 11., SY_close, {"hsrG", "knob"} },
+	};
+	komo.setSkeleton(S);
+
+	komo.optimize();
+
+	komo.getReport(true);
+	komo.view(true, "optimized motion");
+	while(komo.view_play(true));
 
 
-	LGP_Tree lgp(C, "fol-pnp-switch.g");
-	rai::String terminal;
+	// LGP_Tree lgp(C, "fol-pnp-switch.g");
+	// rai::String terminal;
 
-	// terminal << "(opened drawer) ";
-	terminal << "(placedindrawer cilinder drawer) ";
-	terminal << "(closed drawer) ";
-	lgp.fol.addTerminalRule(terminal);
+	// // terminal << "(opened drawer) ";
+	// terminal << "(placedindrawer cilinder drawer) ";
+	// terminal << "(closed drawer) ";
+	// lgp.fol.addTerminalRule(terminal);
 
-	lgp.displayBound = BD_seqPath;
-	lgp.heuristicCosts = [](LGP_Node *n)
-	{ pickAndPlaceCost(n); };
+	// lgp.displayBound = BD_seqPath;
+	// lgp.heuristicCosts = [](LGP_Node *n)
+	// { pickAndPlaceCost(n); };
 
-	// lgp.fol.writePDDLfiles("z");
-	lgp.run();
+	// lgp.run();
 }
 
 int main(int argc, char **argv)
