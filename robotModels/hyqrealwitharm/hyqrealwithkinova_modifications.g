@@ -3,10 +3,18 @@ shape baseG (base_footprint){type=ssBox size=[.03 .03 .05 .01] color=[1 1 0 0] l
 
 
 ## BASE
-Edit worldTranslationRotation { base }
+Edit worldTranslationRotation {base }
 Edit jointBase_pitch {base }
+Edit jointBase_z {q=0.6 base }
 
 ## ARM
+#Edit z_joint_1 {q=2.3577493051846776 arm}
+#Edit z_joint_2 {q=0.2531656546587593 arm}
+#Edit z_joint_3 {q=3.1341070767893875 arm}
+#Edit z_joint_4 {q=-2.249735516593585 arm}
+#Edit z_joint_5 {q=-0.008052252525192038 arm}
+#Edit z_joint_6 {q=0.9208671865221225 arm}
+#Edit z_joint_7 {q=1.574369854243149 arm}
 Edit z_joint_1 {q=2.35618 arm}
 Edit z_joint_2 {q=0.26 arm}
 Edit z_joint_3 {q=3.14 arm}
