@@ -30,6 +30,11 @@ struct RHHLGP_solver{
 		void setupLGP(LGP_Tree &tree, const char *priorDecisions= nullptr) const;
 		LGP_Node* horizonNode(LGP_Tree &lgp, int i);
 		void getStats(BoundType bound, shared_ptr<KOMO> komo);
+		void printSkeleton(const Skeleton &skeleton);
+		intA getSwitchesFromSkeleton(const Skeleton &S, const rai::Configuration &world);
+		void setSkeleton(const Skeleton &skeleton, rai::Configuration &C, arrA &qConfig);
+
+
 };
 
 void getEndConfig(rai::Configuration &C, shared_ptr<KOMO> komo);
