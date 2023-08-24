@@ -37,5 +37,5 @@ shape coll_bicept (half_arm_1_link){ type=ssBox rel=<T 0.0 -0.22 0.0 0 0 0 1 >  
 shape coll_forearm (forearm_link){ type=ssBox rel=<T 0.0 -0.2 0.0 1 0 0 0 >  size=[ 0.01 0.28 0.01 0.03 ]  contact=-2, color:[1.,1.,1.,0.001]  }
 shape coll_wrist (spherical_wrist_2_link){ type=ssBox rel=<T 0.0 -0.07 0.0 1 0 0 0 >  size=[ 0.01 0.2 0.01 0.038 ]  contact=-2, color:[1.,1.,1.,0.001]  }
 
-#shape target (world) { rel:<t(2. 0 0.4) d(90 1 0 0)> type=ssBox size=[.25 .25 .3 .02] color=[0 1 0] }
+shape target (world) { rel:<t(2.5  0.0 0.35) d(90 1 0 0)> type=ssBox size=[.005 .005 .005 .02], contact=2, color=[0 1 0] }
 #shape target2 (world) { rel:<t(2. 0 0.4) d(90 0 0 1)> type=ssBox size=[.1 .1 .2 .02] color=[0 1 0]}
