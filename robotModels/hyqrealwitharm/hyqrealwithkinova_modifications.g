@@ -32,7 +32,7 @@ Edit lh_kfe_joint {q: -1.}
 Edit rh_kfe_joint {q: -1.}
 
 # COLLISION
-shape coll_base (base_footprint){ type=ssBox rel=<T 0.08 0 -0.03 1 0 0 0 >  size=[ 1.3 0.7 0.42 0.1 ]  contact=-2, color:[1.,1.,1.,0.001]  }
+shape coll_base (base_pitch){ type=ssBox rel=<T 0.08 0 -0.03 1 0 0 0 >  size=[ 1.3 0.7 0.42 0.1 ]  contact=-2, color:[1.,1.,1.,0.001]  }
 shape coll_bicept (half_arm_1_link){ type=ssBox rel=<T 0.0 -0.22 0.0 0 0 0 1 >  size=[ 0.1 0.5 0.1 0.04 ]  contact=-2, color:[1.,1.,1.,0.001]  }
 shape coll_forearm (forearm_link){ type=ssBox rel=<T 0.0 -0.2 0.0 1 0 0 0 >  size=[ 0.01 0.28 0.01 0.03 ]  contact=-2, color:[1.,1.,1.,0.001]  }
 shape coll_wrist (spherical_wrist_2_link){ type=ssBox rel=<T 0.0 -0.07 0.0 1 0 0 0 >  size=[ 0.01 0.2 0.01 0.038 ]  contact=-2, color:[1.,1.,1.,0.001]  }
