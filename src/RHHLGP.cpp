@@ -698,41 +698,41 @@ void RHHLGP_solver::printSkeleton(const Skeleton &skeleton)
   }
 }
 
-void RHHLGP_solver::setSkeleton(const Skeleton &skeleton, rai::Configuration &C, arrA &qConfig){
+void RHHLGP_solver::setSkeleton(const Skeleton &skeleton, rai::Configuration &C, arrA &qConfig)
+{
 	KOMO komoProblem;
 	double maxPhase = getMaxPhaseFromSkeleton(skeleton);
-	if(maxPhase > 0){
-	//for(uint i=1; i<3 ; i++) qConfig.p[i] = -1.0;
-	qConfig(0)(1) = -2.0;
-	uint stepsPerPhase = rai::getParameter<uint>("LGP/stepsPerPhase", 10);
-  	uint pathOrder = rai::getParameter<uint>("LGP/pathOrder", 2);
+	if (maxPhase > 0)
+	{
+		// for(uint i=1; i<3 ; i++) qConfig.p[i] = -1.0;
+		qConfig(0)(1) = -2.0;
+		uint stepsPerPhase = rai::getParameter<uint>("LGP/stepsPerPhase", 10);
+		uint pathOrder = rai::getParameter<uint>("LGP/pathOrder", 2);
 
+		C.setJointState(qConfig(0));
+		komoProblem.setModel(C, false);
+		komoProblem.setTiming(maxPhase + 0.5, stepsPerPhase, 10., pathOrder);
+		komoProblem.add_qControlObjective({}, 2, 1.);
+		komoProblem.add_qControlObjective({}, 0, 1e-2);
+		komoProblem.addSquaredQuaternionNorms();
+		komoProblem.setSkeleton(skeleton);
+		komoProblem.add_collision(true);
+		komoProblem.add_jointLimits(true);
+		//-- call the optimizer
+		komoProblem.checkGradients();
 
-	C.setJointState(qConfig(0));
-	komoProblem.setModel(C, false);
-  	komoProblem.setTiming(maxPhase+0.5, stepsPerPhase, 10., pathOrder);
-    komoProblem.add_qControlObjective({}, 2, 1.);
-    komoProblem.add_qControlObjective({}, 0, 1e-2);
-    komoProblem.addSquaredQuaternionNorms();
-	komoProblem.setSkeleton(skeleton);
-    komoProblem.add_collision(true);
-	komoProblem.add_jointLimits(true);
-    //-- call the optimizer
-    komoProblem.checkGradients();
+		komoProblem.setSkeleton(skeleton);
 
- 	komoProblem.setSkeleton(skeleton);
+		komoProblem.add_collision(true, 0., 1e1);
+		komo->add_jointLimits(true);
 
- 	komoProblem.add_collision(true, 0., 1e1);
-    komo->add_jointLimits(true);
+		komoProblem.optimize();
 
-    komoProblem.optimize();
+		komoProblem.run_prepare(.01);
 
-    komoProblem.run_prepare(.01);
-
-
-    //  komo.checkGradients(); //this checks all gradients of the problem by finite difference
-    // komo.getReport(true); // true -> plot the cost curves
-    for (uint i = 0; i < 2; i++)
-        komoProblem.displayTrajectory(.1, true); // play the trajectory
-		}
+		//  komo.checkGradients(); //this checks all gradients of the problem by finite difference
+		// komo.getReport(true); // true -> plot the cost curves
+		for (uint i = 0; i < 2; i++)
+			komoProblem.displayTrajectory(.1, true); // play the trajectory
+	}
 }
