@@ -27,7 +27,6 @@ placed   # gripper X holds/has picked object Y
 ## KOMO symbols
 touch
 above
-grab
 
 touch
 stable
@@ -51,7 +50,7 @@ DecisionRule pick {
   { (gripper X) (object Y) (busy X)! (held Y)! (INFEASIBLE pick X Y)! }
   { (above Y ANY)! (on ANY Y)! (stableOn ANY Y)! 
     (picked X Y) (held Y) (busy X) # these are only on the logical side, to enable correct preconditions
-    (grab X Y) (stable X Y) # these are predicates that enter the NLP
+    (touch X Y) (stable X Y) # these are predicates that enter the NLP
     }
 }
 
@@ -68,4 +67,3 @@ DecisionRule place {
 }
 
 #####################################################################
-
