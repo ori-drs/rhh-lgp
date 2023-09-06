@@ -144,7 +144,7 @@ void RHHLGP(int numObj, uint horizon, ManipulationTask task) {
   		    terminal << "(on table2 obj0) ";
 
 			auto heuristic = [](LGP_Node *n){ return hsr_original_heuristic(n); };
-			RHHLGP_solver rhhlgp(C, horizon, heuristic, terminal, "fol/fol_hyq.g", 2);
+			RHHLGP_solver rhhlgp(C, horizon, heuristic, terminal, "fol-pnp-switch.g", 2);
 			rhhlgp.optimize(gl);
 		} break;
 
