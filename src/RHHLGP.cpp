@@ -261,6 +261,8 @@ Skeleton LGP_Node::getNextHorizonSkeleton(intA window) const
 // this uses the horizon to optBound
 void LGP_Node::optBound3(BoundType bound, bool collisions, intA window, int verbose)
 {
+	std::cout << "OPT BOUND 3 "
+			  << "\n";
 	if (komoProblem(bound))
 		komoProblem(bound).reset();
 	komoProblem(bound) = make_shared<KOMO>();
@@ -275,32 +277,45 @@ void LGP_Node::optBound3(BoundType bound, bool collisions, intA window, int verb
 
 	komo->logFile = new ofstream(OptLGPDataPath + STRING("komo-" << id << '-' << step << '-' << bound));
 
-	// Skeleton S = getSkeleton(false, 0, window.last()); 						//< this optimizes the entire sequence from the start
+	Skeleton S1 = getSkeleton();				 //< this optimizes the entire sequence from the start
 	Skeleton S = getNextHorizonSkeleton(window); //< get skeleton of horizon and append previous conditions
+
+	std::cout << "PRINTING SKELETON "
+			  << "\n";
+	for (const SkeletonEntry &entry : S1)
+	{
+		entry.write(std::cout);
+		std::cout << std::endl; // to add a new line after each entry
+	}
+	std::cout << "END SKELETON "
+			  << "\n";
 
 	arrA waypoints;
 	if (bound == BD_seqPath || bound == BD_seqVelPath)
 	{
 		CHECK(komoProblem(BD_seq), "BD_seq needs to be computed before");
 		waypoints = komoProblem(BD_seq)->getPath_qAll();
+		std::cout << "waypoints " << waypoints << "\n";
+		std::cout << "waypoints " << waypoints.N << "\n";
 	}
 
 	auto comp = skeleton2Bound(komo, bound, S,
 							   startKinematics,
 							   collisions,
 							   waypoints);
-
+	std::cout << "exit skeleton2bound " << "\n";
 	CHECK(comp, "no compute object returned");
 
 	if (komo->logFile)
 		writeSkeleton(*komo->logFile, S, getSwitchesFromSkeleton(S, komo->world));
 
-	if (komo->verbose > 1)
-	{
-		writeSkeleton(cout, S, getSwitchesFromSkeleton(S, komo->world));
-	}
+	// if (komo->verbose > 1)
+	// {
+	// 	writeSkeleton(cout, S, getSwitchesFromSkeleton(S, komo->world));
+	// }
 
 	computes.append(comp);
+	std::cout << "passing append" << "\n";
 
 	for (ptr<Objective> &o : tree->finalGeometryObjectives.objectives)
 	{
@@ -308,12 +323,14 @@ void LGP_Node::optBound3(BoundType bound, bool collisions, intA window, int verb
 		ptr<Objective> co = komo->addObjective({(double)(komo->T - 1), (double)(komo->T - 1)}, o->feat, {}, o->type);
 		cout << "FINAL objective: " << *co << endl;
 	}
+	std::cout << "passing final objectives" << "\n";
 
 	if (komo->logFile)
 	{
 		komo->reportProblem(*komo->logFile);
 		(*komo->logFile) << komo->getProblemGraph(false);
 	}
+	std::cout << "passing log files" << "\n";
 
 	//-- optimize
 	DEBUG(FILE("z.fol") << fol;);
@@ -337,13 +354,15 @@ void LGP_Node::optBound3(BoundType bound, bool collisions, intA window, int verb
 			NIY // komo->run_sub({komo->T-2}, {});
 		}
 	}
-	catch (std::runtime_error &err)
-	{
-		cout << "KOMO CRASHED: " << err.what() << endl;
-		komoProblem(bound).reset();
-		HALT("KOMO CRASHED!");
-		return;
-	}
+	
+		catch (std::runtime_error &err)
+		{
+			cout << "KOMO CRASHED: " << err.what() << endl;
+			komoProblem(bound).reset();
+			HALT("KOMO CRASHED!");
+			return;
+		}
+	
 	COUNT_kin += rai::Configuration::setJointStateCount;
 	COUNT_opt(bound)++;
 	COUNT_time += komo->timeTotal;
@@ -352,12 +371,17 @@ void LGP_Node::optBound3(BoundType bound, bool collisions, intA window, int verb
 	DEBUG(komo->getReport(false, 1, FILE("z.problem")););
 
 	Graph result = komo->getReport((komo->verbose > 0 && bound >= 2));
+	komo->reportProblem();
 	DEBUG(FILE("z.problem.cost") << result;);
 	double bound_cost = result.get<double>("sos");
 	double bound_constraints = result.get<double>("eq");
 	bound_constraints += result.get<double>("ineq");
 	std::cout << "bound constraints " << bound_constraints << "\n";
-	bool feas = (bound_constraints < 5.0);
+	std::cout << "SOS: " << bound_cost << "\n";
+	std::cout << "EQUALITY C. " << result.get<double>("eq") << "\n";
+	std::cout << "INEQUALITY C. " << result.get<double>("ineq") << "\n";
+
+	bool feas = (bound == BD_seqPath) ? (bound_constraints < 20.0) : (bound_constraints < 20.);
 
 	// if(komo->verbose>0) {
 	cout << "  RESULTS: cost: " << bound_cost << " constraints: " << bound_constraints << " feasible: " << feas << endl;
@@ -409,9 +433,9 @@ void LGP_Tree::optBestOnLevel(BoundType bound, LGP_NodeL &drawFringe, BoundType 
 		return;
 	}
 	LGP_Node *n = popBest(drawFringe, drawFrom);
-	//std::cout << "node " << *n << "\n";
-	//std::cout << "entering inside this optBestOnLevel"
-			 // << "\n";
+	// std::cout << "node " << *n << "\n";
+	// std::cout << "entering inside this optBestOnLevel"
+	//  << "\n";
 	if (n && !n->count(bound))
 	{
 		try
@@ -419,6 +443,7 @@ void LGP_Tree::optBestOnLevel(BoundType bound, LGP_NodeL &drawFringe, BoundType 
 			// optBound3 is adapted to RHC
 			std::cout << "calling bound 3"
 					  << "\n";
+			std::cout << "window " << window << "\n";
 			n->optBound3(bound, collisions, window, verbose - 2);
 		}
 		catch (const char *err)
@@ -467,6 +492,8 @@ void LGP_Tree::optBestOnLevel(BoundType bound, LGP_NodeL &drawFringe, BoundType 
 // overloading step with horizon
 void LGP_Tree::step(int horizon, int windowN)
 {
+	std::cout << "step rhh lgp"
+			  << "\n";
 	if (fringe_expand.N)
 		expandNext();
 
@@ -481,32 +508,34 @@ void LGP_Tree::step(int horizon, int windowN)
 
 	int playSolution = 0;
 	if (fringe_solved.N > numSol)
-	for(int playSolution = 0; playSolution < 1; playSolution++){
+		for (int playSolution = 0; playSolution < 1; playSolution++)
+		{
+			{
+				if (verbose > 2)
+				{
+					cout << "NEW SOLUTION UNTIL HORIZON FOUND! " << fringe_solved.last()->getTreePathString(horizon * windowN, horizon * (windowN + 1));
+					cout << "LEN: " << std::min((uint)horizon, fringe_solved.last()->getTreePath().N - horizon * windowN);
+					cout << endl;
+				}
+				solutions.set()->append(new LGP_Tree_SolutionData(*this, fringe_solved.last()));
+				solutions.set()->sort(sortComp2);
+				if (verbose > 0)
+				{
+					BoundType bound;
+					if (focusNode->komoProblem(BD_seqPath) && focusNode->feasible(BD_seqPath))
+						bound = BD_seqPath;
+					else if (focusNode->komoProblem(BD_path) && focusNode->feasible(BD_path))
+						bound = BD_path;
+					else
+						HALT("NO KOMO FOUND");
+					cout << "PRESS q TO START AND END THE VISUALIZATION" << endl;
+					focusNode->komoProblem(bound)->view(true, "optimized motion");
+					focusNode->komoProblem(bound)->view_play(true);
+				}
+			}
+		}
+	if (playSolution > 1)
 	{
-		if (verbose > 2)
-		{
-			cout << "NEW SOLUTION UNTIL HORIZON FOUND! " << fringe_solved.last()->getTreePathString(horizon * windowN, horizon * (windowN + 1));
-			cout << "LEN: " << std::min((uint)horizon, fringe_solved.last()->getTreePath().N - horizon * windowN);
-			cout << endl;
-		}
-		solutions.set()->append(new LGP_Tree_SolutionData(*this, fringe_solved.last()));
-		solutions.set()->sort(sortComp2);
-		if (verbose > 0)
-		{
-			BoundType bound;
-			if (focusNode->komoProblem(BD_seqPath) && focusNode->feasible(BD_seqPath))
-				bound = BD_seqPath;
-			else if (focusNode->komoProblem(BD_path) && focusNode->feasible(BD_path))
-				bound = BD_path;
-			else
-				HALT("NO KOMO FOUND");
-			cout << "PRESS q TO START AND END THE VISUALIZATION" << endl;
-			//focusNode->komoProblem(bound)->view(true, "optimized motion");
-			//focusNode->komoProblem(bound)->view_play(true);
-		}
-	}
-	}
-	if(playSolution > 1){
 		playSolution = 0;
 	}
 
@@ -547,7 +576,7 @@ void LGP_Tree::run2(int windowN, int horizon, uint steps)
 		// std::cout << "calling steps" << "\n";
 		// std::cout << "stopSol" << stopSol << "\n";
 		// std::cout << "fringe_solved.N" << fringe_solved.N << "\n";
-		// displayTreeUsingDot();
+		displayTreeUsingDot();
 
 		if (fringe_solved.N >= stopSol)
 			break;
@@ -652,16 +681,14 @@ void RHHLGP_solver::optimize(ptr<OpenGL> gl)
 		if (verbose > 1)
 			cout << "STARTING ITERATION: " << i << endl;
 		LGP_Tree lgp(nextConfig, folFile); // setup and run
-		
+
 		setupLGP(lgp, solution.p);
-	
 
-		
 		lgp.run2(i - 1, horizon, 3000000);
-		
-		std::cout << "ended run2 " << "\n";
 
-			
+		std::cout << "ended run2 "
+				  << "\n";
+
 		std::cout << "repeating"
 				  << "\n";
 		std::cout << "horizon"
@@ -675,21 +702,35 @@ void RHHLGP_solver::optimize(ptr<OpenGL> gl)
 			 << " solution " << solution << "from " << horizon * (i - 1) << "to " << horizon * i << endl;
 		solutionLen = optimizedNode->step;
 
-		intA window = {horizon * (i-1), horizon * i};
-		Skeleton S_now = optimizedNode->getSkeleton(false, horizon * (i-1), horizon * i);
-		std::cout << "get switches from skeleton" << "\n";
+		intA window = {horizon * (i - 1), horizon * i};
+		Skeleton S_now = optimizedNode->getSkeleton(false, horizon * (i - 1), horizon * i);
+		std::cout << "get switches from skeleton"
+				  << "\n";
 		getSwitchesFromSkeleton(S_now, nextConfig);
-  		printSkeleton(S_now);
+		printSkeleton(S_now);
+		std::cout << "after print skeleton "
+				  << "\n";
 		arrA qRai = optimizedNode->komoProblem(BD_seqPath)->getPath_qAll();
-		setSkeleton(S_now, nextConfig, qRai);
+		std::cout << "qRai " << qRai.N << "\n";
+		//  setSkeleton(S_now, nextConfig, qRai);
 
 		BoundType optimizedBound = getOptimizedBound(optimizedNode);
+
+		std::cout << "after optimizedBound "
+				  << "\n";
+
 		komo.reset();
 		komo = optimizedNode->komoProblem(optimizedBound);
 		getStats(optimizedBound, komo);
+		std::cout << "get stats "
+				  << "\n";
 
-		getEndConfig(nextConfig, komo);
 		solved = horizonNode(lgp, i)->isTerminal; // we are done if the last node of the optimized sequence satisfies our goals
+
+		std::cout << "solved " << solved << "\n";
+		if (!solved)
+			getEndConfig(nextConfig, komo);
+
 		totalExpansions += lgp.numSteps;
 		i++;
 	}
@@ -701,43 +742,42 @@ void RHHLGP_solver::optimize(ptr<OpenGL> gl)
 		 << endl;
 }
 
-
 intA RHHLGP_solver::getSwitchesFromSkeleton(const Skeleton &S, const rai::Configuration &world)
 {
-  intA ret;
-  for (int i = 0; i < (int)S.N; i++)
-  {
-    if (skeletonModes.contains(S.elem(i).symbol))
-    { // S(i) is about a switch
-      int j = i - 1;
-      rai::Frame *toBeSwitched = world[S.elem(i).frames(1)];
-      rai::Frame *rootOfSwitch = toBeSwitched->getUpwardLink(NoTransformation, true);
-      rai::Frame *childOfSwitch = toBeSwitched->getDownwardLink(true);
-      for (; j >= 0; j--)
-      {
-        if (skeletonModes.contains(S.elem(j).symbol))
-        { // S(j) is about a switch
-          const rai::String &prevSwitched = S.elem(j).frames(1);
-          if (prevSwitched == toBeSwitched->name || prevSwitched == rootOfSwitch->name || prevSwitched == childOfSwitch->name)
-            break;
-        }
-      }
-      // j=-1 if not previously switched, otherwise the index of the previous switch
-      ret.append({j, i});
-    }
-  }
-  ret.reshape(ret.N / 2, 2);
+	intA ret;
+	for (int i = 0; i < (int)S.N; i++)
+	{
+		if (skeletonModes.contains(S.elem(i).symbol))
+		{ // S(i) is about a switch
+			int j = i - 1;
+			rai::Frame *toBeSwitched = world[S.elem(i).frames(1)];
+			rai::Frame *rootOfSwitch = toBeSwitched->getUpwardLink(NoTransformation, true);
+			rai::Frame *childOfSwitch = toBeSwitched->getDownwardLink(true);
+			for (; j >= 0; j--)
+			{
+				if (skeletonModes.contains(S.elem(j).symbol))
+				{ // S(j) is about a switch
+					const rai::String &prevSwitched = S.elem(j).frames(1);
+					if (prevSwitched == toBeSwitched->name || prevSwitched == rootOfSwitch->name || prevSwitched == childOfSwitch->name)
+						break;
+				}
+			}
+			// j=-1 if not previously switched, otherwise the index of the previous switch
+			ret.append({j, i});
+		}
+	}
+	ret.reshape(ret.N / 2, 2);
 
-  return ret;
+	return ret;
 }
 
 void RHHLGP_solver::printSkeleton(const Skeleton &skeleton)
 {
-  for (const SkeletonEntry &entry : skeleton)
-  {
-    entry.write(std::cout);
-    std::cout << std::endl; // to add a new line after each entry
-  }
+	for (const SkeletonEntry &entry : skeleton)
+	{
+		entry.write(std::cout);
+		std::cout << std::endl; // to add a new line after each entry
+	}
 }
 
 void RHHLGP_solver::setSkeleton(const Skeleton &skeleton, rai::Configuration &C, arrA &qConfig)
