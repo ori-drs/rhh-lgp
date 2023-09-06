@@ -174,8 +174,8 @@ Skeleton LGP_Node::getNextHorizonSkeleton(intA window) const
 	int horizon = window.last() - window.first();
 	int endT = window.last() - 1;
 	int startT = endT - horizon - 1;
-	Skeleton S_now = getSkeleton(false, 0, window.last());
-	// Skeleton S_now = getSkeleton(false, window.first(), window.last());
+	// Skeleton S_now = getSkeleton(false, 0, window.last());
+	 Skeleton S_now = getSkeleton(false, window.first(), window.last());
 	Skeleton S_whole = getSkeleton();
 
 	std::cout << "PRINTING SKELETON S_now"
@@ -662,21 +662,15 @@ void RHHLGP_solver::reset()
 // 3. run next lgp instance with new config and same goals
 void RHHLGP_solver::optimize(ptr<OpenGL> gl)
 {
-	std::cout << "entering here optimize"
-			  << "\n";
 	rai::String solution;
 	bool solved = false;
 	LGP_Node *optimizedNode;
 	rai::Configuration nextConfig = C; // save config statically
 	reset();
-	std::cout << "before solving"
-			  << "\n";
 	// loop over horizons until we reached our goal
 	int i = 1;
 	while (!solved)
 	{
-		std::cout << "first loop"
-				  << "\n";
 
 		if (verbose > 1)
 			cout << "STARTING ITERATION: " << i << endl;
@@ -685,14 +679,6 @@ void RHHLGP_solver::optimize(ptr<OpenGL> gl)
 		setupLGP(lgp, solution.p);
 
 		lgp.run2(i - 1, horizon, 3000000);
-
-		std::cout << "ended run2 "
-				  << "\n";
-
-		std::cout << "repeating"
-				  << "\n";
-		std::cout << "horizon"
-				  << "\n";
 
 		// extract solutions
 		CHECK(lgp.fringe_solved.N, "FRINGE SOLVED HAS TO CONTAIN A VALUE");
@@ -704,30 +690,21 @@ void RHHLGP_solver::optimize(ptr<OpenGL> gl)
 
 		intA window = {horizon * (i - 1), horizon * i};
 		Skeleton S_now = optimizedNode->getSkeleton(false, horizon * (i - 1), horizon * i);
-		std::cout << "get switches from skeleton"
-				  << "\n";
+		
 		getSwitchesFromSkeleton(S_now, nextConfig);
 		printSkeleton(S_now);
-		std::cout << "after print skeleton "
-				  << "\n";
+	
 		arrA qRai = optimizedNode->komoProblem(BD_seqPath)->getPath_qAll();
-		std::cout << "qRai " << qRai.N << "\n";
 		//  setSkeleton(S_now, nextConfig, qRai);
 
 		BoundType optimizedBound = getOptimizedBound(optimizedNode);
 
-		std::cout << "after optimizedBound "
-				  << "\n";
-
 		komo.reset();
 		komo = optimizedNode->komoProblem(optimizedBound);
 		getStats(optimizedBound, komo);
-		std::cout << "get stats "
-				  << "\n";
-
+		
 		solved = horizonNode(lgp, i)->isTerminal; // we are done if the last node of the optimized sequence satisfies our goals
 
-		std::cout << "solved " << solved << "\n";
 		if (!solved)
 			getEndConfig(nextConfig, komo);
 
