@@ -175,13 +175,40 @@ Skeleton LGP_Node::getNextHorizonSkeleton(intA window) const
 	int endT = window.last() - 1;
 	int startT = endT - horizon - 1;
 	Skeleton S_now = getSkeleton(false, 0, window.last());
+	// Skeleton S_now = getSkeleton(false, window.first(), window.last());
 	Skeleton S_whole = getSkeleton();
+
+	std::cout << "PRINTING SKELETON S_now"
+			  << "\n";
+	for (const SkeletonEntry &entry : S_now)
+	{
+		entry.write(std::cout);
+		std::cout << std::endl; // to add a new line after each entry
+	}
+	std::cout << "END SKELETON S_now"
+			  << "\n";
+	std::cout << "PRINTING SKELETON S_whole"
+			  << "\n";
+	for (const SkeletonEntry &entry : S_whole)
+	{
+		entry.write(std::cout);
+		std::cout << std::endl; // to add a new line after each entry
+	}
+	std::cout << "END SKELETON S_whole"
+			  << "\n";
 
 	Skeleton S;
 	for (uint i = 0; i < S_now.N; ++i)
 	{
 		SkeletonEntry se = S_now.elem(i);
 		SkeletonEntry st = S_whole.elem(i);
+		if (st.phase0 > 1)
+			st.phase0 = 1.;
+		if (st.phase1 > 1)
+			st.phase1 = 1.;
+
+		std::cout << "se.phase0" << se.phase0 << "\n";
+		std::cout << "st.phase0" << st.phase0 << "\n";
 
 		if (st.phase0 < startT && (st.phase1 >= startT || st.phase1 == -1) && !skeletonModes.contains(st.symbol))
 		{
@@ -210,6 +237,21 @@ Skeleton LGP_Node::getNextHorizonSkeleton(intA window) const
 				se.phase1 = -1;
 			S.append(se);
 		}
+	}
+
+	// for (uint i = 0; i < S.N; ++i)
+	// {
+	// 	SkeletonEntry s = S.elem(i);
+	// 	if (s.phase1 > -1)
+	// 		s.phase1 += 0.5;
+	// 	S.elem(i) = s;
+	// }
+	std::cout << "PRINTING SKELETON S modified"
+			  << "\n";
+	for (const SkeletonEntry &entry : S)
+	{
+		entry.write(std::cout);
+		std::cout << std::endl; // to add a new line after each entry
 	}
 
 	return S;
