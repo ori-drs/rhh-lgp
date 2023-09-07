@@ -264,7 +264,7 @@ std::cout << "PRINTING SKELETON "
 	double bound_constraints = result.get<double>("eq");
 	bound_constraints += result.get<double>("ineq");
 	std::cout << "bound constraints " << bound_constraints << "\n";
-	bool feas = (bound_constraints<5.0);
+	bool feas = (bound_constraints<20.0);
 
 	// if(komo->verbose>0) {
 		cout <<"  RESULTS: cost: " <<bound_cost <<" constraints: " <<bound_constraints <<" feasible: " <<feas <<endl;
