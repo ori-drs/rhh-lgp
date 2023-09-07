@@ -1,20 +1,25 @@
 base world{ color:[0.8, 0.2, 0.2, 0.5]}
-base_footprint 	{Q:[0, 0, 0.58, 1, 0, 0, 0] }
-#base_footprint 	{}
+#base_footprint 	{Q:[0, 0, 0.61, 1, 0, 0, 0] }
+#base_z {Q:[0, 0, 0.61, 1, 0, 0, 0]}
+
+base_footprint 	{}
+#worldTranslationRotation (jointBase_z base_footprint){ joint:transXYPhi,  limits: [-4, 4, -2, 2, -0.1, 0.1], ctrl_H=20 }
+worldTranslationRotation (world base_footprint){ joint:transXYPhi,  limits: [-100, 100, -100, 100, -3.14, 3.14], ctrl_H=20 }
+base_z {} 
+jointBase_z (base_footprint base_z) {joint:transZ, limits:[0.6, 0.6]}
 base_pitch {}
-jointBase_pitch (world base_pitch) { joint:hingeY, limits: [-0.15, 0.15] }
-worldTranslationRotation (base_pitch base_footprint){ joint:transXYPhi,  limits: [-4, 4, -2, 2, -0.1, 0.1], ctrl_H=20 }
-trunk (base_footprint) 	{ , mass:93, inertiaTensor:[1.49873, -0.007369, -0.189135, 9.49238, 0.000185, 9.01236]}
-trunk_1 (base_footprint) 	{ , shape:mesh, color:[0.38, 0.365, 0.365], mesh:'meshes/trunk/combined_torso.dae', meshscale=0.001, visual, Q:[0.0, 0, 0.0, 0, 0, 1, 1]  }
+jointBase_pitch (base_z base_pitch) { joint:hingeY, limits: [-0.2, 0.2] }
+trunk (base_pitch) 	{ , mass:93, inertiaTensor:[1.49873, -0.007369, -0.189135, 9.49238, 0.000185, 9.01236]}
+trunk_1 (base_pitch) 	{ , shape:mesh, color:[0.38, 0.365, 0.365], mesh:'meshes/trunk/combined_torso.dae', meshscale=0.001, visual, Q:[0.0, 0, 0.0, 0, 0, 1, 1]  }
 #trunk_0 (trunk) 	{ , shape:mesh, color:[0.8, 0.2, 0.2, 0.5], mesh:'meshes/trunk/combined_torso_decimated.dae', contact:-2 }
 trunk>lf_haa_joint (trunk) 	{  Q:[0.4435, 0.139, 0, -1.03412e-13, 2.44843e-12, 2.53174e-25, -1] }
 trunk>rf_haa_joint (trunk) 	{  Q:[0.4435, -0.139, 0, 1, 0, -2.44826e-12, 0] }
 trunk>lh_haa_joint (trunk) 	{  Q:[-0.4435, 0.139, 0, -1.03412e-13, 2.44843e-12, 2.53174e-25, -1] }
 trunk>rh_haa_joint (trunk) 	{  Q:[-0.4435, -0.139, 0, 1, 0, -2.44826e-12, 0] }
-base_arm (base_footprint) 	{  Q:[0.539, 0, -0.062, 0.382683, 0, 0, 0.92388], mass:1.697, inertiaTensor:[0.004622, 9e-06, 6e-05, 0.004495, 9e-06, 0.002079] }
-base_arm_1 (base_footprint) 	{  Q:[0.539, 0, -0.062, 0.382683, 0, 0, 0.92388], shape:mesh, color:[0.75294, 0.75294, 0.75294, 1], mesh:'meshes/arm/base_link.dae', visual }
-#base_arm_0 (base_footprint) 	{  Q:[0.539, 0, -0.062, 0.382683, 0, 0, 0.92388], shape:mesh, color:[0.8, 0.2, 0.2, 0.5], mesh:'meshes/arm/base_link.dae', contact:-2 }
-base_arm>z_joint_1 (base_footprint) 	{  Q:[0.539, 0, 0.09443, 0.653281, 0.270595, 0.653283, -0.2706] }
+base_arm (base_pitch) 	{  Q:[0.539, 0, -0.062, 0.382683, 0, 0, 0.92388], mass:1.697, inertiaTensor:[0.004622, 9e-06, 6e-05, 0.004495, 9e-06, 0.002079] }
+base_arm_1 (base_pitch) 	{  Q:[0.539, 0, -0.062, 0.382683, 0, 0, 0.92388], shape:mesh, color:[0.75294, 0.75294, 0.75294, 1], mesh:'meshes/arm/base_link.dae', visual }
+#base_arm_0 (base_pitch) 	{  Q:[0.539, 0, -0.062, 0.382683, 0, 0, 0.92388], shape:mesh, color:[0.8, 0.2, 0.2, 0.5], mesh:'meshes/arm/base_link.dae', contact:-2 }
+base_arm>z_joint_1 (base_pitch) 	{  Q:[0.539, 0, 0.09443, 0.653281, 0.270595, 0.653283, -0.2706] }
 lf_haa_joint (trunk>lf_haa_joint) 	{ , joint:hingeX, limits:[-0.733038, 0.401426], ctrl_limits:[173], Q:[0, 0.0, 0.00, 0.7071068, 0., 0., 0.7071068 ]}
 rf_haa_joint (trunk>rf_haa_joint) 	{ , joint:hingeX, limits:[-0.733038, 0.401426], ctrl_limits:[173], Q:[0, 0.0, 0.00, -0.7071068, 0, 0, -0.7071068 ] }
 lh_haa_joint (trunk>lh_haa_joint) 	{ , joint:hingeX, limits:[-0.733038, 0.401426], ctrl_limits:[173], Q:[0, 0.0, 0.00, 0.7071068, 0, 0, 0.7071068 ] }
