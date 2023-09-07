@@ -188,6 +188,17 @@ void LGP_Node::optBound3(BoundType bound, bool collisions, intA window, int verb
 	//Skeleton S = getSkeleton(false, 0, window.last()); 						//< this optimizes the entire sequence from the start
 	Skeleton S = getNextHorizonSkeleton(window);							//< get skeleton of horizon and append previous conditions
 
+std::cout << "PRINTING SKELETON "
+			  << "\n";
+	for (const SkeletonEntry &entry : S)
+	{
+		entry.write(std::cout);
+		std::cout << std::endl; // to add a new line after each entry
+	}
+	std::cout << "END SKELETON "
+			  << "\n";
+
+
 	arrA waypoints;
 	if(bound==BD_seqPath || bound==BD_seqVelPath) {
 		CHECK(komoProblem(BD_seq), "BD_seq needs to be computed before");
