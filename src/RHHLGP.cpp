@@ -343,6 +343,7 @@ void LGP_Tree::optBestOnLevel(BoundType bound, LGP_NodeL& drawFringe, BoundType 
 //===========================================================================
 //overloading step with horizon
 void LGP_Tree::step(int horizon, int windowN) {
+	if(fringe_expand.N)
 	expandNext();
 
 	uint numSol = fringe_solved.N;
