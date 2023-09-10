@@ -92,6 +92,8 @@ shape coll_wrist_r (r_forearm_roll_link){ type=ssBox rel=<T 0.21 0 0 0.999391 0 
 shape coll_hand_r (r_wrist_roll_link){ type=ssBox rel=<T 0.09 0 0 -1 0 0 0 >  size=[ 0.072 0.12 0.06 0.025 ]  contact=-2, coll_pr2,  color:[1.,1.,1.,.2]  }
 shape coll_hand_r_1 (r_gripper_l_finger_tip_link){ type=ssBox rel=<T 0 0 0 -1 0 0 0 >  size=[ 0.02 0.035 0.06 0.01]  contact=-2, coll_pr2,  color:[1.,1.,1.,.2]  }
 shape coll_hand_r_2 (r_gripper_r_finger_tip_link){ type=ssBox rel=<T 0 0 0 -1 0 0 0 >  size=[ 0.02 0.035 0.06 0.01]  contact=-2, coll_pr2,  color:[1.,1.,1.,.2]  }
+#shape coll_hand_r_1 (r_gripper_l_finger_tip_link){ type=ssBox rel=<T 0 0 0 -1 0 0 0 >  size=[ 0.01 0.02 0.02 0.01]  contact=-2, coll_pr2,  color:[1.,1.,1.,.2]  }
+#shape coll_hand_r_2 (r_gripper_r_finger_tip_link){ type=ssBox rel=<T 0 0 0 -1 0 0 0 >  size=[ 0.01 0.02 0.02 0.01]   contact=-2, coll_pr2,  color:[1.,1.,1.,.2]  }
 shape coll_arm_l (l_upper_arm_roll_link){ type=ssBox rel=<T 0.221337 0 0 -1 0 0 0 >  size=[ 0.55 0.2 0.2 0.1 ]  contact=-4, coll_pr2,  color:[1.,1.,1.,.2]  }
 shape coll_wrist_l (l_forearm_roll_link){ type=ssBox rel=<T 0.21 0 0 0.999391 0 0.0348995 0 >  size=[ 0.35 0.14 0.14 0.07 ]  contact=-2, coll_pr2,  color:[1.,1.,1.,.2]  }
 shape coll_hand_l (l_wrist_roll_link){ type=ssBox rel=<T 0.09 0 0 -1 0 0 0 >  size=[ 0.072 0.12 0.06 0.025 ]  contact=-2, coll_pr2,  color:[1.,1.,1.,.2]  }
