@@ -38,6 +38,7 @@ close
 lift
 
 touch
+touch_cilinder
 stable
 stableOn
 stablePose
@@ -120,14 +121,3 @@ DecisionRule pickcilinder {
     (touch G C) (stable G C) # these are predicates that enter the NLP
     }
 }
-
-#####################################################################
-
-#DecisionRule picktoplaceindrawer {
-#  G, C, D
-#  { (gripper G) (cilinder C) (drawer D) (opened D) (busy G)! (held C)! (INFEASIBLE pick G C)! }
-#  { (above C ANY)! (on ANY C)! (stableOn ANY C)! 
-#    (picked G C) (held C) (busy G) # these are only on the logical side, to enable correct preconditions
-#    (touch G C) (stable G C) (opened D) # these are predicates that enter the NLP
-#    }
-#}

@@ -31,7 +31,7 @@ void solveHsrTask(uint numObj)
 	yAxis1->setRelativePosition({0.0, 0.15, 0.0});
 	zAxis1->setRelativePosition({0.0, 0.0, 0.15});
 
-	bool solveWithKomoSkeleton = false;
+	bool solveWithKomoSkeleton = true;
 	if(solveWithKomoSkeleton) {
 		KOMO komo;
 

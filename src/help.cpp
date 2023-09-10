@@ -244,18 +244,18 @@ void createDrawerScene(rai::Configuration &C)
 	// C.addFile("robotModels/drawer.g");
 	rai::Frame *f2 = C.addFrame("knob", "", "type:ssBox size:[.05 .05 .05 .02] color:[0. 0. 1.], logical={object, knob }");
 	f2->setPosition({0.0, -2.0, 0.2});
-	f2->setQuaternion(rai::Quaternion(0).addZ(0.0).getArr4d());
+	f2->setQuaternion(rai::Quaternion(0).addZ(-0.5).getArr4d());
 	// std::cout << "!!!!!!!!!!!!!!!!!!!   " << f2->getQuaternion().elem(0) << " " << f2->getQuaternion().elem(1) << " " << f2->getQuaternion().elem(2) << " " << f2->getQuaternion().elem(3) << " " << std::endl;
 
 	rai::Quaternion noRotationQuaternion(1.0, 0.0, 0.0, 0.0);
 	rai::Frame *f3 = C.addFrame("drawer", "knob", "type:ssBox size:[.5 .5 .1 .02] color:[0. 1. 0. 1.], logical={ object, drawer }");
 	f3->setRelativePosition({0.0, -0.28, 0.0});
-    f3->setQuaternion(rai::Quaternion(0).addZ(0.0).getArr4d());
+    f3->setQuaternion(rai::Quaternion(0).addZ(-0.5).getArr4d());
 	// f3->setPosition({0.0, -2.5, 0.4});
 	// f3->setQuaternion(rai::Quaternion(0).addZ(0).getArr4d());
 
 	rai::Frame *f4 = C.addFrame(STRING("cilinder"), "", "type:ssBox size:[.1 .1 .2 .02] color:[1. 0. 0.], logical={ object, cilinder }");
-	f4->setPosition({1.0, -2.0, 0.4});
+	f4->setPosition({1.0, -2.0, 0.3});
 	f4->setQuaternion(noRotationQuaternion.getArr4d());
 
 
