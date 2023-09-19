@@ -31,7 +31,7 @@ void solveHsrTask(uint numObj)
 	yAxis1->setRelativePosition({0.0, 0.15, 0.0});
 	zAxis1->setRelativePosition({0.0, 0.0, 0.15});
 
-	bool solveWithKomoSkeleton = true;
+	bool solveWithKomoSkeleton = false;
 	if(solveWithKomoSkeleton) {
 		KOMO komo;
 
@@ -76,6 +76,7 @@ void solveHsrTask(uint numObj)
 
 		// terminal << "(opened drawer) ";
 		terminal << "(placedindrawer cilinder drawer) ";
+		terminal << "(placedindrawer cilinder2 drawer) ";
 		terminal << "(closed drawer) ";
 		// terminal << "(free hsrG) ";
 		lgp.fol.addTerminalRule(terminal);
