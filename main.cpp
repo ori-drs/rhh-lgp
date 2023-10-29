@@ -3,222 +3,187 @@
 #include "src/help.h"
 #include <LGP/LGP_tree.h>
 #include <Kin/kin.h>
-//#include "src/objectHandling.h"
+// #include "src/objectHandling.h"
 
 //===========================================================================
-void solveClimbingTask(uint numObj, HeuristicFct h, int verbose=1, bool player=false, int numCrawlers=2){
-	rai::Configuration C;
-	if (numCrawlers==1) { createRandomScene(C, numObj, "scenarios/empty_scene_single.g"); }
-	else createRandomScene(C, numObj, "scenarios/empty_scene.g");
-
-	LGP_Tree lgp(C, "fol/fol.g");
-	lgp.fol.addTerminalRule("(held banana)");
-	// either we use the action heuristics
-	if (h==ACTION_HEURISTICS) {
-		if(numCrawlers==1) lgp.heuristicCosts = [](LGP_Node *n){ costToGo1And2(n,"banana",{"L_handA"},1); };
-		else if(numCrawlers==2) lgp.heuristicCosts = [](LGP_Node *n){ costToGo1And2(n,"banana",{"L_handA","R_handA"},1); };
-	}
-	// or seq bound as Quim proposed
-	else if(h==SEQ_BOUND) {
-		lgp.heuristicCosts = [&lgp](LGP_Node *n){ lgp.seqBoundCostToGo(n); };
-	}
-	// (or none)
-	lgp.verbose=verbose;
-	if (player) { lgp.player(); } else { lgp.run(); }
-}
-
-//===========================================================================
-void solveMobileManipulator(uint numObj, bool h = true, int verbose = 1, bool player = false){
-	rai::Configuration C;
-	createShelfScene(C, numObj);
-
-	LGP_Tree lgp(C, "fol/fol.g");
-	rai::String terminal;
-	for (uint i = 0; i < numObj; ++i) {terminal << "(on shelf2 obj" <<i << ") ";}
-	lgp.fol.addTerminalRule(terminal);
-	if(h) lgp.heuristicCosts = [](LGP_Node *n){ costToGo4(n, 4, "shelf1", "shelf2"); };
-	lgp.verbose=verbose;
-	if (player) { lgp.player(); } else { lgp.run(); }
-}
-
-
-//===========================================================================
-void solveComplexTask(uint numObj, bool h = true, int verbose = 1, bool player = false){
-	rai::Configuration C;
-	double zOffset = 1.; double zDiff = .9;
-	createRandomScene(C, numObj, zDiff, zOffset, "scenarios/complexScene.g");
-	rai::Frame *banana = C.getFrame("banana");
-	rai::Frame *f = C.addFrame(STRING("green_banana"), "", "type:ssBox size:[.1 .1 .3 .02] color:[0.,1.,0], logical={ object:True, grippable }" );
-	f->setPosition({banana->getPosition().elem(0) + rnd.uni(-.5,.5), banana->getPosition().elem(1) - 1., .9 * (numObj+1) + zOffset});
-
-	LGP_Tree lgp(C, "fol/fol.g");
-	lgp.fol.addTerminalRule("(held banana) (held green_banana)");
-	if(h) lgp.heuristicCosts = [](LGP_Node *n){ costToGo3(n, {"banana", "green_banana"}, STRING("L_handA").p); };
-	lgp.verbose=verbose;
-	if (player) { lgp.player(); } else { lgp.run(); }
-}
-
-//===========================================================================
-void RHHLGP(int numObj, uint horizon, ManipulationTask task) {
-	switch (task) {
-		case MT_climb: {
-			rai::Configuration C;
-			createRandomScene(C, numObj, "scenarios/empty_scene.g");
-			ptr<OpenGL> gl = setupCamera();
-
-			void (*heuristic)(LGP_Node *n) = [](LGP_Node *n){ costToGo1And2(n,"banana",{"L_handA","R_handB"},1); };
-			RHHLGP_solver rhhlgp(C, horizon, heuristic, "(held banana)", "fol/fol.g", 2);
-			rhhlgp.optimize(gl);
-		} break;
-
-		case MT_climb_single: {
-			rai::Configuration C;
-			createRandomScene(C, numObj, "scenarios/empty_scene_single.g");
-			ptr<OpenGL> gl = setupCamera();
-
-			void (*heuristic)(LGP_Node *n) = [](LGP_Node *n){ costToGo1And2(n,"banana",{"L_handA"},1); };
-			RHHLGP_solver rhhlgp(C, horizon, heuristic, "(held banana)", "fol/fol.g", 2);
-			rhhlgp.optimize(gl);
-		} break;
-
-		case MT_complex: {
-			rai::Configuration C;
-			double zOffset = 1.; double zDiff = .9;
-			createRandomScene(C, numObj, zDiff, zOffset, "scenarios/complexScene.g");
-			rai::Frame *banana = C.getFrame("banana");
-			rai::Frame *f = C.addFrame(STRING("green_banana"), "", "type:ssBox size:[.1 .1 .3 .02] color:[0.,1.,0], logical={ object:True, grippable }" );
-			f->setPosition({banana->getPosition().elem(0) + rnd.uni(-.5,.5), banana->getPosition().elem(1) - 1., .9 * (numObj+1) + zOffset});
-			ptr<OpenGL> gl = setupCamera();
-
-			void (*heuristic)(LGP_Node *n) = [](LGP_Node *n){ costToGo3(n, {"banana", "green_banana"}, STRING("L_handA").p); };
-			RHHLGP_solver rhhlgp(C, horizon, heuristic, "(held banana) (held green_banana)", "fol/fol.g", 2);
-			rhhlgp.optimize(gl);
-		} break;
-
-		case MT_mobileManipulator: {
-			rai::Configuration C;
-			createShelfScene(C, numObj);
-			ptr<OpenGL> gl = setupCamera();
-
-			rai::String terminal;
-			for (int i = 0; i < numObj; ++i) {terminal << "(on shelf2 obj" <<i << ") ";}
-
-			void (*heuristic)(LGP_Node *n) = [](LGP_Node *n){ costToGo4(n, 4, "shelf1", "shelf2"); };
-			RHHLGP_solver rhhlgp(C, horizon, heuristic, terminal, "fol/fol.g", 2);
-			rhhlgp.optimize(gl);
-		} break;
-
-		case MT_obstacle: {
-			rai::Configuration C;
-			// now setting up scene
-			createObstacleParcour(C, numObj);
-			ptr<OpenGL> gl = setupCamera();
-			rai::String terminal = "(held banana)";
-
-			auto heuristic = [](LGP_Node *n){ return costToGo5(n, "base0", "banana"); };
-			RHHLGP_solver rhhlgp(C, horizon, heuristic, terminal, "fol/fol.g", 2);
-			rhhlgp.optimize(gl);
-		} break;
-
-		case MT_panda: {
-			rai::Configuration C;
-			// now setting up scene
-			createTableScene(C, numObj);
-			ptr<OpenGL> gl = setupCamera();
-
-			rai::String terminal;
-			for (int i = 0; i < numObj; ++i) {terminal << "(on goal obj" <<i << ") ";}
-
-			auto heuristic = [](LGP_Node *n){ return costToGo6(n, 5, "goal"); };
-			RHHLGP_solver rhhlgp(C, horizon, heuristic, terminal, "fol/panda_fol.g", 2);
-			rhhlgp.optimize(gl);
-		} break;
-
-		case MT_hyq: {
-			rai::Configuration C;
-			// now setting up scene
- 			generateProblem(C, 1);
-			ptr<OpenGL> gl = setupCamera();
-
-			rai::String terminal;
-  		    terminal << "(on table2 obj0) ";
-
-			auto heuristic = [](LGP_Node *n){ return hsr_original_heuristic(n); };
-			RHHLGP_solver rhhlgp(C, horizon, heuristic, terminal, "fol-pnp-switch.g", 2);
-			rhhlgp.optimize(gl);
-		} break;
-
-	}
-}
-
-
-
-//===========================================================================
-void solveObstacleTask(uint numObj, bool h = true, int verbose = 1, bool player = false) {
-	rai::Configuration C;
-	// now setting up scene
-	createObstacleParcour(C, numObj);
-	ptr<OpenGL> gl = setupCamera();
-
-	rai::String terminal = "(held banana)";
-
-	LGP_Tree lgp(C, "fol/fol.g");
-	lgp.fol.addTerminalRule(terminal);
-	lgp.heuristicCosts = [](LGP_Node *n){ costToGo5(n, "base0", "banana"); };
-	lgp.verbose = verbose;
-	if (player) { lgp.player(); } else { lgp.run(); }
-}
-
-//===========================================================================
-void solvePandaTask(uint numObj, bool h = true, int verbose = 1, bool player = false) {
+void solveHsrTask(uint numObj)
+{
 	// set up scene
 	rai::Configuration C;
-	createTableScene(C, numObj);
-	ptr<OpenGL> gl = setupCamera();
+	C.addFile("robotModels/drawer.g");
+	C.addFile("robotModels/hyqrealwitharm/hyqrealwithkinova_main.g");
+	// C.pruneInactiveJoints();
+	// C.optimizeTree();
+	C["hyqrealwithkinovaG"]->ats->newNode<Graph>({"logical"}, {}, {{"gripper", true}});
+	C.selectJointsByAtt({"base", "arm"});
 
+    rai::Quaternion noRotationQuaternion(1.0, 0.0, 0.0, 0.0);
+    rai::Quaternion rotationQuaternion(cos(M_PI / 4), 0, sin(M_PI / 4), 0);
+
+
+    rai::Frame *f1 = C.addFrame(STRING("obj0"), "", "type:ssBox size:[.2745 .073 .0765 .002] , contact=-2, color:[0. 1. 0. 1.], logical={ object }");
+    f1->setPosition({1.5, 0.0, 0.03825});
+    f1->setQuaternion(noRotationQuaternion.getArr4d());
+
+   
+    rai::Frame *framePlaceBottle = C.addFrame(STRING("placeBottle"), "world", "logical={ placingTemporary }");
+    framePlaceBottle->setRelativePosition({3.0, 0.67, 0.45});
+    framePlaceBottle->setQuaternion(noRotationQuaternion.getArr4d());
+
+	  rai::Frame *xAxis1FrameBottle = C.addFrame("xAxis1", "placeBottle", "type:ssBox size:[.3 .01 .01 .01] color:[1. 0. 0.]");
+	  rai::Frame *yAxis1FrameBottle = C.addFrame("yAxis1", "placeBottle", "type:ssBox size:[.01 .3 .01 .01] color:[0. 1. 0.]");
+	  rai::Frame *zAxis1FrameBottle = C.addFrame("zAxis1", "placeBottle", "type:ssBox size:[.01 .01 .3 .01] color:[0. 0. 1.]");
+	  xAxis1FrameBottle->setRelativePosition({0.15, 0.0, 0.0});
+	  yAxis1FrameBottle->setRelativePosition({0.0, 0.15, 0.0});
+	  zAxis1FrameBottle->setRelativePosition({0.0, 0.0, 0.15});
+
+
+    rai::Frame *framePlaceDrawer = C.addFrame(STRING("placeBottleInsideDrawer"), "trofast", "logical={ placingDefinitively }");
+    framePlaceDrawer->setRelativePosition({0.0, 0.0, 0.0});
+    framePlaceDrawer->setQuaternion(noRotationQuaternion.getArr4d());
+
+	  rai::Frame *xAxis1KnobPole = C.addFrame("xAxis1", "knob_pole_1", "type:ssBox size:[.3 .01 .01 .01] color:[1. 0. 0.]");
+	  rai::Frame *yAxis1KnobPole = C.addFrame("yAxis1", "knob_pole_1", "type:ssBox size:[.01 .3 .01 .01] color:[0. 1. 0.]");
+	  rai::Frame *zAxis1KnobPole = C.addFrame("zAxis1", "knob_pole_1", "type:ssBox size:[.01 .01 .3 .01] color:[0. 0. 1.]");
+	  xAxis1KnobPole->setRelativePosition({0.15, 0.0, 0.0});
+	  yAxis1KnobPole->setRelativePosition({0.0, 0.15, 0.0});
+	  zAxis1KnobPole->setRelativePosition({0.0, 0.0, 0.15});
+
+      rai::Frame *xAxis1KnobBase = C.addFrame("xAxis1", "knob_base_1", "type:ssBox size:[.3 .01 .01 .01] color:[1. 0. 0.]");
+	  rai::Frame *yAxis1KnobBase = C.addFrame("yAxis1", "knob_base_1", "type:ssBox size:[.01 .3 .01 .01] color:[0. 1. 0.]");
+	  rai::Frame *zAxis1KnobBase = C.addFrame("zAxis1", "knob_base_1", "type:ssBox size:[.01 .01 .3 .01] color:[0. 0. 1.]");
+	  xAxis1KnobBase->setRelativePosition({0.15, 0.0, 0.0});
+	  yAxis1KnobBase->setRelativePosition({0.0, 0.15, 0.0});
+	  zAxis1KnobBase->setRelativePosition({0.0, 0.0, 0.15});
+
+
+	  rai::Frame *xAxis1Trofast = C.addFrame("xAxis1", "trofast_1", "type:ssBox size:[.3 .01 .01 .01] color:[1. 0. 0.]");
+	  rai::Frame *yAxis1Trofast = C.addFrame("yAxis1", "trofast_1", "type:ssBox size:[.01 .3 .01 .01] color:[0. 1. 0.]");
+	  rai::Frame *zAxis1Trofast = C.addFrame("zAxis1", "trofast_1", "type:ssBox size:[.01 .01 .3 .01] color:[0. 0. 1.]");
+	  xAxis1Trofast->setRelativePosition({0.15, 0.0, 0.0});
+	  yAxis1Trofast->setRelativePosition({0.0, 0.15, 0.0});
+	  zAxis1Trofast->setRelativePosition({0.0, 0.0, 0.15});
+
+      rai::Frame *closed_frame = C.addFrame("closed_frame", "", "type:ssBox size:[.3 .01 .01 .01] color:[1. 0. 0.]");
+	  closed_frame->setPosition({2.77, 0.67, 0.245});
+      closed_frame->setQuaternion(noRotationQuaternion.getArr4d());
+
+	  rai::Frame *opened_frame = C.addFrame("opened_frame", "", "type:ssBox size:[.3 .01 .01 .01] color:[1. 0. 0.]");
+	  opened_frame->setPosition({2.5, 0.67, 0.245});
+      opened_frame->setQuaternion(noRotationQuaternion.getArr4d());
+
+	  rai::Frame *xAxis1OpenedFrame = C.addFrame("xAxis1", "opened_frame", "type:ssBox size:[.3 .01 .01 .01] color:[1. 0. 0.]");
+	  rai::Frame *yAxis1OpenedFrame = C.addFrame("yAxis1", "opened_frame", "type:ssBox size:[.01 .3 .01 .01] color:[0. 1. 0.]");
+	  rai::Frame *zAxis1OpenedFrame = C.addFrame("zAxis1", "opened_frame", "type:ssBox size:[.01 .01 .3 .01] color:[0. 0. 1.]");
+	  xAxis1OpenedFrame->setRelativePosition({0.15, 0.0, 0.0});
+	  yAxis1OpenedFrame->setRelativePosition({0.0, 0.15, 0.0});
+	  zAxis1OpenedFrame->setRelativePosition({0.0, 0.0, 0.15});
+
+	// rai::Frame *xAxis = C.addFrame("xAxis", "knob", "type:ssBox size:[.3 .01 .01 .01] color:[1. 0. 0.]");
+	// rai::Frame *yAxis = C.addFrame("yAxis", "knob", "type:ssBox size:[.01 .3 .01 .01] color:[0. 1. 0.]");
+	// rai::Frame *zAxis = C.addFrame("zAxis", "knob", "type:ssBox size:[.01 .01 .3 .01] color:[0. 0. 1.]");
+	// xAxis->setRelativePosition({0.15, 0.0, 0.0});
+	// yAxis->setRelativePosition({0.0, 0.15, 0.0});
+	// zAxis->setRelativePosition({0.0, 0.0, 0.15});
+
+	// rai::Frame *xAxis1 = C.addFrame("xAxis1", "hyqrealwithkinovaG", "type:ssBox size:[.3 .01 .01 .01] color:[1. 0. 0.]");
+	// rai::Frame *yAxis1 = C.addFrame("yAxis1", "hyqrealwithkinovaG", "type:ssBox size:[.01 .3 .01 .01] color:[0. 1. 0.]");
+	// rai::Frame *zAxis1 = C.addFrame("zAxis1", "hyqrealwithkinovaG", "type:ssBox size:[.01 .01 .3 .01] color:[0. 0. 1.]");
+	// xAxis1->setRelativePosition({0.15, 0.0, 0.0});
+	// yAxis1->setRelativePosition({0.0, 0.15, 0.0});
+	// zAxis1->setRelativePosition({0.0, 0.0, 0.15});
+
+	bool solveWithKomoSkeleton = true;
+	if (solveWithKomoSkeleton)
+	{
+		KOMO komo;
+
+		komo.setModel(C, false);
+		komo.setTiming(7.0, 10, 5., 2);
+		// komo.add_qControlObjective({}, 0);
+    	// komo.add_qControlObjective({}, 2);
+		komo.add_qControlObjective({}, 2, 1.);
+  		komo.add_qControlObjective({}, 0, 1e-2);
+		komo.addSquaredQuaternionNorms();
+		komo.add_jointLimits(true);
+
+		Skeleton S = {
+			// pick object + keep heading end-effector
+			{1., 1., SY_touch, {"hyqrealwithkinovaG", "obj0"}},
+			{1., 1., SY_gripperOrientation, {"hyqrealwithkinovaG", "obj0"}},
+			{1., 1., SY_pitchGripperDown, {"hyqrealwithkinovaG", "obj0"}},
+			// keep object attached to end-effector
+			{1., 2., SY_stable, {"hyqrealwithkinovaG", "obj0"}},
+			// place object on table
+			{2., 5., SY_touch, {"obj0", "placeBottle"}},
+			// open drawer
+			{3., 4., SY_touch, {"hyqrealwithkinovaG", "knob_pole_1"}},
+			{3., 4., SY_open, {"hyqrealwithkinovaG", "knob_pole_1"}},
+			{3., 4., SY_stable, {"hyqrealwithkinovaG", "knob_pole_1"}},
+			{3., 6., SY_touch, {"knob_pole_1", "opened_frame"}},
+			{3., 4., SY_touch, {"hyqrealwithkinovaG", "opened_frame"}},
+			// keep trofast and object orientation
+			{4., 7., SY_objectOrientation, {"knob_pole_1"}},
+			{2., 7., SY_objectOrientationConstant, {"obj0"}},
+			// pick object
+			{4., 5., SY_touch, {"hyqrealwithkinovaG", "obj0"}},
+			{4., 5., SY_stable, {"hyqrealwithkinovaG", "obj0"}},
+			{4., 5., SY_gripperOrientation, {"hyqrealwithkinovaG", "obj0"}},
+			{4., 5., SY_pitchGripperDown, {"hyqrealwithkinovaG", "obj0"}},
+			// place object inside drawer
+			{5., 6., SY_gripperOrientation, {"hyqrealwithkinovaG", "obj0"}},
+			{5., 6., SY_pitchGripperDown, {"hyqrealwithkinovaG", "obj0"}},
+			{5., 7., SY_touch, {"obj0", "trofast_1"}},
+			{5., 6., SY_touch, {"hyqrealwithkinovaG", "obj0"}},
+			// closing drawer
+			// {6., 7., SY_close, {"hyqrealwithkinovaG", "knob_pole_1"}},
+			{6., 7., SY_touch, {"obj0", "trofast_1"}},
+			{6., 7., SY_touch, {"hyqrealwithkinovaG", "knob_pole_1"}},
+			{6., 7., SY_touch, {"knob_pole_1", "closed_frame"}},
+			{6., 7., SY_touch, {"hyqrealwithkinovaG", "closed_frame"}},
+			{6., 7., SY_open, {"hyqrealwithkinovaG", "obj0"}},
+
+		};
+		komo.setSkeleton(S);
+		komo.add_collision(true);
+
+		komo.optimize();
+    	komo.checkGradients();
+		komo.getReport(true);
+
+		//komo.view(false, "optimized motion");
+		// for (uint i = 0; i < 2; i++)
+		// 	komo.view_play(true);
+		    komo.getReport(true); // true -> plot the cost curves
+    for (uint i = 0; i < 7; i++)
+        komo.displayTrajectory(.1, true); // play the trajectory
+	
+}
+else
+{
+	LGP_Tree lgp(C, "fol-pnp-switch.g");
 	rai::String terminal;
-	for (uint i = 0; i < numObj; ++i) {terminal << "(on goal obj" <<i << ") ";}
 
-	LGP_Tree lgp(C, "fol/panda_fol.g");
+	// terminal << "(opened drawer) ";
+	terminal << "(placedindrawer cilinder drawer) ";
+	terminal << "(placedindrawer cilinder2 drawer) ";
+	terminal << "(closed drawer) ";
+	// terminal << "(free hyqrealwithkinovaG) ";
 	lgp.fol.addTerminalRule(terminal);
-	lgp.heuristicCosts = [](LGP_Node *n){ costToGo6(n, 3, "goal"); };
-	lgp.verbose = verbose;
-	if (player) { lgp.player(); } else { lgp.run(); }
+
+	lgp.displayBound = BD_seqPath;
+	lgp.heuristicCosts = [](LGP_Node *n)
+	{ pickAndPlaceCost(n); };
+
+	lgp.run();
+}
 }
 
-//===========================================================================
-int main(int argc,char** argv){
-  rai::initCmdLine(argc,argv);
-  rnd.seed(123);
+int main(int argc, char **argv)
+{
+	rai::initCmdLine(argc, argv);
+	// rnd.seed(123);
+	solveHsrTask(1);
 
-	// scenario to test heuristics vs. no heuristics -- FIRST EXPERIMENT in paper uses this scenario with different configurations
-	//solveClimbingTask(4, ACTION_HEURISTICS, 1, false, 2);
-	//solveClimbingTask(4, SEQ_BOUND, 1, false, 2); // this is the baseline like Quim proposed it
-	//solveClimbingTask(4, NONE, 1, false, 2);
-
-  // scenario that is also feasible with just one crawler -- SECOND EXPERIMENT in paper uses this scenario with different configurations
-  //solveClimbingTask(32, ACTION_HEURISTICS, 1, false, 2);
-  //solveClimbingTask(32, ACTION_HEURISTICS, 1, false, 1);
-
-	// complex scenario which contains rolling and climbing and disconnecting -- THIRD EXPERIMENT in paper uses this scenario with different configurations
-	//solveComplexTask(4, true, 2, false);
-
-	// this is the mobile manipulator scenario -- FOURTH EXPERIMENT in paper uses this scenario with different configurations
-	//solveMobileManipulator(3, true, 2, false);
-
-	// FIFTH EXPERIMENT in paper uses this scenario with different configurations
-	//solveObstacleTask(2, true, 2, false);
-
-	// SIXTH EXPERIMENT in paper uses panda robots to transfer objects to goal
-	//solvePandaTask(4, true, 2, false);
-
-	// a receding horizon formulation that plans the first scenario from above iteratively with a horizon -- LAST EXPERIMENT
-	//RHHLGP(25, 10, MT_complex);
-	//RHHLGP(16, 4, MT_mobileManipulator);
-	//RHHLGP(45, 6, MT_climb_single);
-	//RHHLGP(32, 3, MT_climb);
-	//RHHLGP(4, 6, MT_obstacle);
-	RHHLGP(2, 1, MT_hyq);
-
-  return 0;
+	return 0;
 }
