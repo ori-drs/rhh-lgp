@@ -4,7 +4,7 @@ base world{ color:[0.8, 0.2, 0.2, 0.5]}
 
 base_footprint 	{}
 #worldTranslationRotation (jointBase_z base_footprint){ joint:transXYPhi,  limits: [-4, 4, -2, 2, -0.1, 0.1], ctrl_H=20 }
-worldTranslationRotation (world base_footprint){ joint:transXYPhi,  limits: [-100, 100, -100, 100, -3.14, 3.14], ctrl_H=20 }
+worldTranslationRotation (world base_footprint){ joint:transXYPhi,  limits: [-100, 100, -100, 100, -6.28, 6.28], ctrl_H=20}
 base_z {} 
 jointBase_z (base_footprint base_z) {joint:transZ, limits:[0.6, 0.6]}
 base_pitch {}
