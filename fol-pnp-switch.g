@@ -7,7 +7,7 @@ Terminate
 FOL_World{
   hasWait=false
   gamma = 1.
-  stepCost = 0.
+  stepCost = 1.
   timeCost = 0.
 }
 
@@ -49,35 +49,28 @@ START_STATE {}
 REWARD {
 }
 
-#####################################################################
 
-
-DecisionRule adjust {
-  W, Y
-  { (base W) (object Y) }
-  { (rotateBase W Y) (adjusted W Y) }
-}
 
 #####################################################################
 
 DecisionRule pick {
-  X, Y, W
-  { (gripper X) (object Y) (busy X)! (held Y)! (base W) (adjusted W Y) (INFEASIBLE pick X Y)!}
+  X, Y
+  { (gripper X) (object Y) (busy X)! (held Y)! (INFEASIBLE pick X Y)!}
   { (above Y ANY)! (on ANY Y)! (stableOn ANY Y)! 
     (picked X Y) (held Y) (busy X) # these are only on the logical side, to enable correct preconditions
-    (touch X Y) (gripperOrientation X Y) (pitchGripperDown X Y) (stable X Y) # these are predicates that enter the NLP
+    (touch X Y)  (stable X Y) # these are predicates that enter the NLP
     }
 }
 
 #####################################################################
 
 DecisionRule place {
-  X, Y, Z, W
-  { (gripper X) (object Y) (picked X Y) (table Z) (held Y) (base W)}
+  X, Y, Z
+  { (gripper X) (object Y) (picked X Y) (table Z) (held Y)}
   { (picked X Y)! (busy X)! (busy Y)! (held Y)! # logic only
     (stable ANY Y)! (touch X Y)! # NLP predicates
-    (on Z Y) (above Y Z) (stableOn Z Y) (gripperOrientation X Y) tmp(touch X Y) tmp(touch Y Z) 
-    (INFEASIBLE pick ANY Y)! block(INFEASIBLE pick ANY Y) (adjusted W Y)!
+    (on Z Y) (above Y Z) (stableOn Z Y) tmp(touch X Y) tmp(touch Y Z) 
+    (INFEASIBLE pick ANY Y)! block(INFEASIBLE pick ANY Y)
     }
 }
 
